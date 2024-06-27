@@ -6,7 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"sort"
-	"tiktok-shop-api/tiktok"
+	tiktok "tiktok-shop-api"
 )
 
 //生成签名

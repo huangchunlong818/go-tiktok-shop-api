@@ -2,8 +2,8 @@ package product
 
 import (
 	"fmt"
-	"tiktok-shop-api/tiktok"
-	"tiktok-shop-api/tiktok/common"
+	tiktok "tiktok-shop-api"
+	"tiktok-shop-api/common"
 )
 
 // 分类规则相应  注释查看proto

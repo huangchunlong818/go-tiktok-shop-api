@@ -3,7 +3,7 @@ package widget
 import (
 	"context"
 	"errors"
-	"tiktok-shop-api/tiktok/common"
+	"tiktok-shop-api/common"
 )
 
 //tiktok shop

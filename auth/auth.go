@@ -2,9 +2,10 @@ package auth
 
 import (
 	"errors"
+	"github.com/go-resty/resty/v2"
 	"strconv"
 	tiktok "tiktok-shop-api"
-	"tiktok-shop-api/tiktok/common"
+	"tiktok-shop-api/common"
 	"time"
 )
 

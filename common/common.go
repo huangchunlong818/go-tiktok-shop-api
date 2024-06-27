@@ -4,9 +4,10 @@ package common
 import (
 	"context"
 	"errors"
+	"github.com/go-resty/resty/v2"
 	"strconv"
-	"tiktok-shop-api/tiktok"
-	"tiktok-shop-api/tiktok/sign"
+	tiktok "tiktok-shop-api"
+	"tiktok-shop-api/sign"
 	"time"
 )
 

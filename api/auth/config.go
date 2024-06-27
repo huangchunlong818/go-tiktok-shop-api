@@ -2,8 +2,8 @@ package auth
 
 import (
 	"fmt"
-	"tiktok-shop-api/tiktok"
-	"tiktok-shop-api/tiktok/common"
+	tiktok "tiktok-shop-api"
+	"tiktok-shop-api/common"
 )
 
 type Shops struct {

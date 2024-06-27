@@ -1,6 +1,6 @@
 package auth
 
-import "tiktok-shop-api/tiktok"
+import tiktok "tiktok-shop-api"
 
 // 获取授权基础连接
 func GetAuthUrl(country string) string {
