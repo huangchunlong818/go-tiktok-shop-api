@@ -2,8 +2,8 @@ package product
 
 import (
 	"context"
-	"go-tiktok-shop-api/tiktok/common/common"
-	"go-tiktok-shop-api/tiktok/common/config"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
 )
 
 type TiktokProduct struct {

@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"go-tiktok-shop-api/tiktok/common/config"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
 	"sort"
 )
 

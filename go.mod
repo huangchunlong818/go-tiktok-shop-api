@@ -1,4 +1,4 @@
-module go-tiktok-shop-api
+module github.com/huangchunlong818/go-tiktok-shop-api
 
 go 1.20
 

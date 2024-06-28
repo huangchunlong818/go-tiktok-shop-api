@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go-tiktok-shop-api/tiktok/common/common"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 )
 
 // tiktok shop cate

@@ -3,8 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
-	tiktokShop "go-tiktok-shop-api/tiktok"
-	"go-tiktok-shop-api/tiktok/common/config"
+	tiktokShop "github.com/huangchunlong818/go-tiktok-shop-api/tiktok"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
 )
 
 func main() {

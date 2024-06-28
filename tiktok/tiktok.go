@@ -2,11 +2,11 @@ package tiktokShop
 
 //共用tiktok配置
 import (
-	apiAuth "go-tiktok-shop-api/tiktok/api/auth"
-	"go-tiktok-shop-api/tiktok/api/product"
-	"go-tiktok-shop-api/tiktok/api/widget"
-	"go-tiktok-shop-api/tiktok/auth"
-	"go-tiktok-shop-api/tiktok/common/config"
+	apiAuth "github.com/huangchunlong818/go-tiktok-shop-api/tiktok/api/auth"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/api/product"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/api/widget"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/auth"
+	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
 )
 
 type AuthClient auth.AuthClientInterface                //授权服务接口
