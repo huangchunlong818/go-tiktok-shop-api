@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tiktokShop/tiktok/common/common"
-	"tiktokShop/tiktok/common/config"
+	"go-tiktok-shop-api/tiktok/common/common"
+	"go-tiktok-shop-api/tiktok/common/config"
 )
 
 //tiktok shop

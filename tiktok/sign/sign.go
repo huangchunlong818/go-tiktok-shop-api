@@ -5,8 +5,8 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"go-tiktok-shop-api/tiktok/common/config"
 	"sort"
-	"tiktokShop/tiktok/common/config"
 )
 
 //生成签名

@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"tiktokShop/tiktok/common/common"
+	"go-tiktok-shop-api/tiktok/common/common"
 )
 
 //tiktok shop brand

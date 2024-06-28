@@ -5,9 +5,9 @@ import (
 	"context"
 	"errors"
 	"github.com/go-resty/resty/v2"
+	"go-tiktok-shop-api/tiktok/common/config"
+	"go-tiktok-shop-api/tiktok/sign"
 	"strconv"
-	"tiktokShop/tiktok/common/config"
-	"tiktokShop/tiktok/sign"
 	"time"
 )
 
