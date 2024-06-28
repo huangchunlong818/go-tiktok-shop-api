@@ -1,5 +1,14 @@
 # tiktok shop api 202309版 https://partner.tiktokshop.com/docv2/page/64f198f74830a5028854c106
 
+项目引入
+go get github.com/huangchunlong818/go-tiktok-shop-api
+
+更新
+go get -u github.com/huangchunlong818/go-tiktok-shop-api
+
+指定版本
+目前还没有稳定的
+
 开发的go版本 1.20.5
 
 使用例子，看main.go
