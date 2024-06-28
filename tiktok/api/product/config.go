@@ -1,11 +1,5 @@
 package product
 
-import (
-	"fmt"
-	tiktok "tiktok-shop-api"
-	"tiktok-shop-api/common"
-)
-
 // 分类规则相应  注释查看proto
 type CateRuleRsp struct {
 	Cod                   *Cod                    `json:"cod"`
@@ -65,43 +59,4 @@ type Brands struct {
 	Id               string `json:"id"`                //brand id
 	IsT1Brand        bool   `json:"is_t1_brand"`       //是否T1品牌
 	Name             string `json:"name"`              //brand name
-}
-
-// 品牌
-func GetBrands(token string) common.GetApiConfig { //请求方式
-	api := fmt.Sprintf("/product/%s/brands", tiktok.ApiVersion()) //请求API PATH
-
-	return common.GetApiConfig{
-		ContentType: "application/json",         //请求头content-type 类型
-		Method:      "get",                      //请求方法类型
-		Api:         api,                        //请求API PATH地址不带域名
-		FullApi:     tiktok.TkApiDomain() + api, //请求的API 完整地址，带域名
-		Token:       token,
-	}
-}
-
-// 分类
-func GetCate(token string) common.GetApiConfig { //请求方式
-	api := fmt.Sprintf("/product/%s/categories", tiktok.ApiVersion()) //请求API PATH
-
-	return common.GetApiConfig{
-		ContentType: "application/json",         //请求头content-type 类型
-		Method:      "get",                      //请求方法类型
-		Api:         api,                        //请求API PATH地址不带域名
-		FullApi:     tiktok.TkApiDomain() + api, //请求的API 完整地址，带域名
-		Token:       token,
-	}
-}
-
-// 分类规则
-func GetCateRule(token string, cateId string) common.GetApiConfig { //请求方式
-	api := fmt.Sprintf("/product/%s/categories/%s/rules", tiktok.ApiVersion(), cateId) //请求API PATH
-
-	return common.GetApiConfig{
-		ContentType: "application/json",         //请求头content-type 类型
-		Method:      "get",                      //请求方法类型
-		Api:         api,                        //请求API PATH地址不带域名
-		FullApi:     tiktok.TkApiDomain() + api, //请求的API 完整地址，带域名
-		Token:       token,
-	}
 }

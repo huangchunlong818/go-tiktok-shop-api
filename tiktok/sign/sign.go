@@ -6,19 +6,22 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"sort"
-	tiktok "tiktok-shop-api"
+	"tiktokShop/tiktok/common/config"
 )
 
 //生成签名
 
 type Sign struct {
+	config *config.Config
 }
 
 var newServer *Sign
 
-func GetNewService() *Sign {
+func GetNewService(config *config.Config) *Sign {
 	if newServer == nil {
-		newServer = &Sign{}
+		newServer = &Sign{
+			config: config,
+		}
 	}
 	return newServer
 }
@@ -59,9 +62,9 @@ func (s *Sign) GetSign(api string, contentType string, query map[string]string, 
 	}
 
 	// 将步骤5中生成的字符串与App secret包在一起
-	input = tiktok.Secret() + input + tiktok.Secret()
+	input = s.config.App.Secret + input + s.config.App.Secret
 
-	return s.generateSHA256(input, tiktok.Secret())
+	return s.generateSHA256(input, s.config.App.Secret)
 }
 
 // 生成签名

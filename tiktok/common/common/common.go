@@ -6,10 +6,26 @@ import (
 	"errors"
 	"github.com/go-resty/resty/v2"
 	"strconv"
-	tiktok "tiktok-shop-api"
-	"tiktok-shop-api/sign"
+	"tiktokShop/tiktok/common/config"
+	"tiktokShop/tiktok/sign"
 	"time"
 )
+
+type TiktokShopCommon struct {
+	config *config.Config
+}
+
+var newServer *TiktokShopCommon
+
+// getNewService 是一个私有函数，用于返回 tiktokShopAuths 实例
+func GetNewService(config *config.Config) *TiktokShopCommon {
+	if newServer == nil {
+		newServer = &TiktokShopCommon{
+			config: config,
+		}
+	}
+	return newServer
+}
 
 // 通用结构体
 type ComApiRsp struct {
@@ -41,7 +57,7 @@ type GetApiConfig struct {
 }
 
 // 断言检查是否[]any类型
-func CheckSliceAny(tmp any) ([]any, error) {
+func (c *TiktokShopCommon) CheckSliceAny(tmp any) ([]any, error) {
 	//只是没数据
 	if tmp == nil {
 		return nil, nil
@@ -55,7 +71,7 @@ func CheckSliceAny(tmp any) ([]any, error) {
 }
 
 // 断言检查是否map string any类型
-func CheckMapStringAny(tmp any) (map[string]any, error) {
+func (c *TiktokShopCommon) CheckMapStringAny(tmp any) (map[string]any, error) {
 	//只是没数据
 	if tmp == nil {
 		return nil, nil
@@ -68,7 +84,7 @@ func CheckMapStringAny(tmp any) (map[string]any, error) {
 }
 
 // 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数
-func SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) (result map[string]any, err error) {
+func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) (result map[string]any, err error) {
 	if reqs.Token == "" && reqs.FullApi == "" {
 		return nil, errors.New("Token和请求API不能为空")
 	}
@@ -77,9 +93,9 @@ func SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]stri
 	if query == nil {
 		query = make(map[string]string)
 	}
-	query["app_key"] = tiktok.AppKey()
+	query["app_key"] = c.config.App.AppKey
 	query["timestamp"] = strconv.FormatInt(time.Now().UTC().Unix(), 10)
-	query["sign"] = sign.GetNewService().GetSign(reqs.Api, reqs.ContentType, query, body) //获取签名
+	query["sign"] = sign.GetNewService(c.config).GetSign(reqs.Api, reqs.ContentType, query, body) //获取签名
 
 	//设置头部参数 x-tts-access-token  和 Content-Type
 	header := map[string]string{
@@ -97,13 +113,13 @@ func SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]stri
 	}
 
 	//请求接口
-	tmp, err := SendApi(ctx, params)
+	tmp, err := c.SendApi(ctx, params)
 
 	//解析成 map 返回
 	if err != nil {
 		return result, err
 	}
-	result, err = CheckMapStringAny(tmp)
+	result, err = c.CheckMapStringAny(tmp)
 	if err != nil {
 		err = errors.New(reqs.Api + err.Error())
 	}
@@ -112,7 +128,7 @@ func SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]stri
 }
 
 // 发起API请求 目前适用tiktok shop 所有API请求，跟auth 区分开
-func SendApi(ctx context.Context, params SendParams) (result any, err error) {
+func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) (result any, err error) {
 	//定义响应体
 	var (
 		res    ComApiRsp

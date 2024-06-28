@@ -3,28 +3,16 @@ package product
 import (
 	"context"
 	"errors"
-	"tiktok-shop-api/common"
+	"fmt"
+	"tiktokShop/tiktok/common/common"
 )
 
-//tiktok shop
-
-type TiktokProductBrand struct {
-}
-
-var newBrandServer *TiktokProductBrand
-
-// 获取实例
-func GetNewBrandService() *TiktokProductBrand {
-	if newBrandServer == nil {
-		newBrandServer = &TiktokProductBrand{}
-	}
-	return newBrandServer
-}
+//tiktok shop brand
 
 // 获取店铺品牌
-func (b *TiktokProductBrand) GetBrands(ctx context.Context, token string, query map[string]string) (result BrandsRsp, err error) {
+func (b *TiktokProduct) GetBrands(ctx context.Context, token string, query map[string]string) (result BrandsRsp, err error) {
 	//请求接口
-	r, err := common.SendTiktokApi(ctx, GetBrands(token), query, nil)
+	r, err := b.common.SendTiktokApi(ctx, b.GetBrandsConfig(token), query, nil)
 	if err != nil {
 		return
 	}
@@ -44,7 +32,7 @@ func (b *TiktokProductBrand) GetBrands(ctx context.Context, token string, query 
 	}
 
 	//断言品牌列表
-	brands, err := common.CheckSliceAny(r["brands"])
+	brands, err := b.common.CheckSliceAny(r["brands"])
 	if err != nil {
 		err = errors.New("GetBrandsApi brands" + err.Error())
 		return
@@ -55,7 +43,7 @@ func (b *TiktokProductBrand) GetBrands(ctx context.Context, token string, query 
 
 	//获取具体品牌
 	for _, brand := range brands {
-		if tmp, err := common.CheckMapStringAny(brand); err == nil && tmp != nil {
+		if tmp, err := b.common.CheckMapStringAny(brand); err == nil && tmp != nil {
 			result.Brands = append(result.Brands, Brands{
 				AuthorizedStatus: tmp["authorized_status"].(string),
 				BrandStatus:      tmp["brand_status"].(string),
@@ -67,4 +55,17 @@ func (b *TiktokProductBrand) GetBrands(ctx context.Context, token string, query 
 	}
 
 	return
+}
+
+// 品牌
+func (b *TiktokProduct) GetBrandsConfig(token string) common.GetApiConfig { //请求方式
+	api := fmt.Sprintf("/product/%s/brands", b.config.Version) //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",         //请求头content-type 类型
+		Method:      "get",                      //请求方法类型
+		Api:         api,                        //请求API PATH地址不带域名
+		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
+		Token:       token,
+	}
 }

@@ -1,4 +1,4 @@
-module tiktok-shop-api
+module tiktokShop
 
 go 1.20
 

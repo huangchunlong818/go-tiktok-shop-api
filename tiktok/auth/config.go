@@ -1,27 +1,5 @@
 package auth
 
-import tiktok "tiktok-shop-api"
-
-// 获取授权基础连接
-func GetAuthUrl(country string) string {
-	if country == "us" {
-		//美国
-		return tiktok.UsAuthUrl()
-	}
-	//非美国
-	return tiktok.OtherAuthUrl()
-}
-
-// 根据用户授权码，获取token和reftoken API地址
-func GetTokenByAuthCodeApi() string {
-	return tiktok.AuthApiDomain() + "/api/v2/token/get"
-}
-
-// 根据用户授权码，获取token和reftoken API地址
-func ReloadToken() string {
-	return tiktok.AuthApiDomain() + "/api/v2/token/refresh"
-}
-
 // 整体相应结构
 type GetTokenByAuthCodeRsp struct {
 	Code    int                    `json:"code"`

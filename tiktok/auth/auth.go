@@ -4,24 +4,35 @@ import (
 	"errors"
 	"github.com/go-resty/resty/v2"
 	"strconv"
-	tiktok "tiktok-shop-api"
-	"tiktok-shop-api/common"
+	"tiktokShop/tiktok/common/common"
+	"tiktokShop/tiktok/common/config"
 	"time"
 )
 
 //tiktok shop 授权
 
 type TiktokShopAuth struct {
+	config *config.Config
 }
 
-var tiktokShopAuth *TiktokShopAuth
+var newServer *TiktokShopAuth
 
-// 获取实例
-func GetNewService() *TiktokShopAuth {
-	if tiktokShopAuth == nil {
-		tiktokShopAuth = &TiktokShopAuth{}
+type AuthClientInterface interface {
+	ReloadToken(refreshToken string) (result GetTokenByAuthCodeData, err error)
+	GetTokenByAuthCode(authCode string) (result GetTokenByAuthCodeData, err error)
+	GetAuthUrl(country string) string
+	GetTokenByAuthCodeApi() string
+	ReloadTokenUrl() string
+}
+
+// getNewService 是一个私有函数，用于返回 tiktokShopAuths 实例
+func GetNewService(config *config.Config) AuthClientInterface {
+	if newServer == nil {
+		newServer = &TiktokShopAuth{
+			config: config,
+		}
 	}
-	return tiktokShopAuth
+	return newServer
 }
 
 // 根据reftoken 刷新令牌
@@ -30,7 +41,7 @@ func (a *TiktokShopAuth) ReloadToken(refreshToken string) (result GetTokenByAuth
 		return result, errors.New("refresh_token cannot be empty")
 	}
 
-	return a.DoToken("refresh_token", refreshToken, ReloadToken(), "refresh_token")
+	return a.DoToken("refresh_token", refreshToken, a.ReloadTokenUrl(), "refresh_token")
 }
 
 // 根据授权码获取token和 reftoken
@@ -39,7 +50,7 @@ func (a *TiktokShopAuth) GetTokenByAuthCode(authCode string) (result GetTokenByA
 		return result, errors.New("auth_code cannot be empty")
 	}
 
-	return a.DoToken("auth_code", authCode, GetTokenByAuthCodeApi(), "authorized_code")
+	return a.DoToken("auth_code", authCode, a.GetTokenByAuthCodeApi(), "authorized_code")
 }
 
 var client = resty.New()
@@ -55,8 +66,8 @@ func (a *TiktokShopAuth) DoToken(paramKey string, paramValue string, api string,
 	//请求tiktok
 	client.SetTimeout(10 * time.Second)
 	resp, err := client.R().
-		SetQueryParam("app_key", tiktok.AppKey()).
-		SetQueryParam("app_secret", tiktok.Secret()).
+		SetQueryParam("app_key", a.config.App.AppKey).
+		SetQueryParam("app_secret", a.config.App.Secret).
 		SetQueryParam(paramKey, paramValue).
 		SetQueryParam("grant_type", grantType).
 		SetResult(&res).
@@ -77,4 +88,24 @@ func (a *TiktokShopAuth) DoToken(paramKey string, paramValue string, api string,
 	}
 
 	return result, err
+}
+
+// 获取授权基础连接
+func (a *TiktokShopAuth) GetAuthUrl(country string) string {
+	if country == "us" {
+		//美国
+		return a.config.UsAuthUrl
+	}
+	//非美国
+	return a.config.OtherAuthUrl
+}
+
+// 获取token和reftoken API地址
+func (a *TiktokShopAuth) GetTokenByAuthCodeApi() string {
+	return a.config.AuthApiDomain + "/api/v2/token/get"
+}
+
+// 获取刷新token地址
+func (a *TiktokShopAuth) ReloadTokenUrl() string {
+	return a.config.AuthApiDomain + "/api/v2/token/refresh"
 }
