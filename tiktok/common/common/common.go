@@ -56,6 +56,21 @@ type GetApiConfig struct {
 	ContentType, Method, Api, FullApi, Token string
 }
 
+// []any 变成 []string
+func (c *TiktokShopCommon) ChangeAnyToStringSlice(tmp any) ([]string, error) {
+	var dataString []string
+	data, err := c.CheckSliceAny(tmp)
+	if err != nil {
+		return dataString, err
+	}
+	if len(data) > 0 {
+		for _, value := range data {
+			dataString = append(dataString, value.(string))
+		}
+	}
+	return dataString, nil
+}
+
 // 断言检查是否[]any类型
 func (c *TiktokShopCommon) CheckSliceAny(tmp any) ([]any, error) {
 	//只是没数据
@@ -81,6 +96,17 @@ func (c *TiktokShopCommon) CheckMapStringAny(tmp any) (map[string]any, error) {
 		return nil, errors.New(" response error, not map[string]any]")
 	}
 	return result, nil
+}
+
+// 断言string 类型
+func (c *TiktokShopCommon) CheckString(tmp any) string {
+	var strings string
+	//只是没数据
+	if tmp == nil {
+		return strings
+	}
+
+	return tmp.(string)
 }
 
 // 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数

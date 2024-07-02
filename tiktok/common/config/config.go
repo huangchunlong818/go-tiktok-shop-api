@@ -7,13 +7,14 @@ import (
 
 // 配置
 type Config struct {
-	Version       string    //版本，通用大版本
-	WidgetVersion string    //版本，widget小部件 版本
-	App           AppConfig //tiktok shop 应用 app配置
-	UsAuthUrl     string    //美国授权地址
-	OtherAuthUrl  string    //美国外的授权地址
-	AuthApiDomain string    //授权接口域名
-	TkApiDomain   string    //tiktok shop api 操作域名
+	Version        string    //版本，通用大版本
+	WidgetVersion  string    //版本，widget小部件 版本
+	ProductVersion string    //版本，产品 版本
+	App            AppConfig //tiktok shop 应用 app配置
+	UsAuthUrl      string    //美国授权地址
+	OtherAuthUrl   string    //美国外的授权地址
+	AuthApiDomain  string    //授权接口域名
+	TkApiDomain    string    //tiktok shop api 操作域名
 }
 
 type AppConfig struct {
@@ -69,6 +70,10 @@ func (t *TiktokShopClient) SetConfig(options ...Option) *TiktokShopClient {
 	if t.configs.TkApiDomain == "" {
 		t.configs.TkApiDomain = DefaultTkApiDomain()
 	}
+	//检查是否设置了产品版本，如果没有则用默认值
+	if t.configs.ProductVersion == "" {
+		t.configs.ProductVersion = DefaultProductVersion()
+	}
 
 	return t
 }
@@ -88,6 +93,11 @@ func WithVersion(version string) Option {
 func WithWidgetVersion(widgetVersion string) Option {
 	return func(config *Config) {
 		config.WidgetVersion = widgetVersion
+	}
+}
+func WithProductVersion(productVersion string) Option {
+	return func(config *Config) {
+		config.ProductVersion = productVersion
 	}
 }
 func WithUsAuthUrl(usAuthUrl string) Option {
@@ -124,6 +134,11 @@ func DefaultApiVersion() string {
 // tiktok shop api widget 小部件版本 默认值
 func DefaultWidgetVersion() string {
 	return "202401"
+}
+
+// tiktok shop api product产品版本 默认值
+func DefaultProductVersion() string {
+	return "202312"
 }
 
 // tiktok shop 美国授权地址 默认值

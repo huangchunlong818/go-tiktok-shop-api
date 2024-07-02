@@ -60,3 +60,40 @@ type Brands struct {
 	IsT1Brand        bool   `json:"is_t1_brand"`       //是否T1品牌
 	Name             string `json:"name"`              //brand name
 }
+
+// 产品相应
+type ProductsRsp struct {
+	NextPageToken string     `json:"next_page_token"`
+	Products      []Products `json:"products"`
+	TotalCount    int        `json:"total_count"`
+}
+
+type Inventory struct {
+	Quantity    int    `json:"quantity"`
+	WarehouseId string `json:"warehouse_id"`
+}
+
+type Price struct {
+	Currency          string `json:"currency"`
+	SalePrice         string `json:"sale_price"`
+	TaxExclusivePrice string `json:"tax_exclusive_price"`
+}
+
+type Skus struct {
+	Id        string      `json:"id"`
+	Inventory []Inventory `json:"inventory"`
+	Price     Price       `json:"price"`
+	SellerSku string      `json:"seller_sku"`
+}
+
+type Products struct {
+	CreateTime             int      `json:"create_time"`
+	Id                     string   `json:"id"`
+	IsNotForSale           bool     `json:"is_not_for_sale"`
+	ProductSyncFailReasons []string `json:"product_sync_fail_reasons"`
+	SalesRegions           []string `json:"sales_regions"`
+	Skus                   []Skus   `json:"skus"`
+	Status                 string   `json:"status"`
+	Title                  string   `json:"title"`
+	UpdateTime             int      `json:"update_time"`
+}
