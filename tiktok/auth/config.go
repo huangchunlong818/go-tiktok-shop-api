@@ -2,9 +2,10 @@ package auth
 
 // 整体相应结构
 type GetTokenByAuthCodeRsp struct {
-	Code    int                    `json:"code"`
-	Message string                 `json:"message"`
-	Data    GetTokenByAuthCodeData `json:"data"`
+	Code     int                    `json:"code"`     //逻辑状态码
+	Message  string                 `json:"message"`  //错误信息
+	Data     GetTokenByAuthCodeData `json:"data"`     //数据
+	HttpCode int                    `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 // 定义一个结构体来表示 data 部分的数据

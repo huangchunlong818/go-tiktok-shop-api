@@ -1,5 +1,13 @@
 package product
 
+// 分类规则响应结构体
+type CateRuleResultRsp struct {
+	Code     int         `json:"code"`     //逻辑状态码
+	Message  string      `json:"message"`  //错误信息
+	Data     CateRuleRsp `json:"data"`     //数据
+	HttpCode int         `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
 // 分类规则相应  注释查看proto
 type CateRuleRsp struct {
 	Cod                   *Cod                    `json:"cod"`
@@ -33,6 +41,14 @@ type SizeChart struct {
 	IsSupported bool `json:"is_supported"`
 }
 
+// 分类响应结构体
+type CateResultRsp struct {
+	Code     int     `json:"code"`     //逻辑状态码
+	Message  string  `json:"message"`  //错误信息
+	Data     CateRsp `json:"data"`     //数据
+	HttpCode int     `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
 // 分类响应
 type CateRsp struct {
 	Cate []Cate `json:"cate"`
@@ -44,6 +60,14 @@ type Cate struct {
 	LocalName          string   `json:"local_name"`          //商店经营所在国家/地区的类别名称
 	ParentId           string   `json:"parent_id"`           //父类别ID，一级类别的父类别ID为“0”
 	PermissionStatuses []string `json:"permission_statuses"` //卖家对类别的权限 1.AVAILABLE：您拥有该类别的权限，可以在该类别下创建产品。2. INVITE_ONLY ：该类别是邀请类别，您不能选择类别创建产品。请放心客户经理或店铺支持团队以访问此类别或选择其他类别的权限。3、NON_MAIN_CATEGORY：该类目不在卖家店铺主类目范围内，卖家无权使用。建议商家联系AM进行处理
+}
+
+// 品牌响应结构体
+type BrandsResultRsp struct {
+	Code     int       `json:"code"`     //逻辑状态码
+	Message  string    `json:"message"`  //错误信息
+	Data     BrandsRsp `json:"data"`     //数据
+	HttpCode int       `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 // 品牌响应
@@ -59,6 +83,14 @@ type Brands struct {
 	Id               string `json:"id"`                //brand id
 	IsT1Brand        bool   `json:"is_t1_brand"`       //是否T1品牌
 	Name             string `json:"name"`              //brand name
+}
+
+// 产品相应
+type ProductsResultRsp struct {
+	Code     int         `json:"code"`     //逻辑状态码
+	Message  string      `json:"message"`  //错误信息
+	Data     ProductsRsp `json:"data"`     //数据
+	HttpCode int         `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 // 产品相应

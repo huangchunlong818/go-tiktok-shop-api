@@ -2,7 +2,6 @@ package product
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -10,84 +9,100 @@ import (
 
 type TiktokProduct struct {
 	config *config.Config
-	common *common.TiktokShopCommon
+	*common.TiktokShopCommon
 }
 
 var newServer *TiktokProduct
 
 type ProductApiClientInterface interface {
 	//品牌
-	GetBrands(ctx context.Context, token string, query map[string]string) (result BrandsRsp, err error)
+	GetBrands(ctx context.Context, token string, query map[string]string) BrandsResultRsp
 	GetBrandsConfig(token string) common.GetApiConfig
 
 	//分类
-	GetCateRule(ctx context.Context, token string, cateId string, query map[string]string) (result CateRuleRsp, err error)
-	GetCate(ctx context.Context, token string, query map[string]string) (result CateRsp, err error)
+	GetCateRule(ctx context.Context, token string, cateId string, query map[string]string) CateRuleResultRsp
+	GetCate(ctx context.Context, token string, query map[string]string) CateResultRsp
 	GetCateConfig(token string) common.GetApiConfig
 	GetCateRuleConfig(token string, cateId string) common.GetApiConfig
-	GetProducts(ctx context.Context, token string, query map[string]string, body map[string]any) (result ProductsRsp, err error)
+
+	//产品
+	GetProducts(ctx context.Context, token string, query map[string]string, body map[string]any) ProductsResultRsp
+	GetProductsConfig(token string) common.GetApiConfig
 }
 
 // 获取产品，搜索产品
-func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map[string]string, body map[string]any) (result ProductsRsp, err error) {
+func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map[string]string, body map[string]any) ProductsResultRsp {
 	//请求接口
-	r, err := b.common.SendTiktokApi(ctx, b.GetProductsConfig(token), query, body)
-	if err != nil {
-		return
+	r := b.SendTiktokApi(ctx, b.GetProductsConfig(token), query, body)
+	result := ProductsResultRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
 	}
-
+	if !b.IsSuccess(r) {
+		return result
+	}
 	//断言分页token
-	if next, ok := r["next_page_token"].(string); !ok {
-		return result, errors.New("GetProducts next_page_token response error")
+	if next, ok := r.Data["next_page_token"].(string); !ok {
+		r.Code = common.ErrCode
+		r.Message = "GetProducts next_page_token response error"
+		return result
 	} else {
-		result.NextPageToken = next
+		result.Data.NextPageToken = next
 	}
 
 	//断言总数
-	if total, ok := r["total_count"].(float64); !ok {
-		return result, errors.New("GetProducts total_count response error")
+	if total, ok := r.Data["total_count"].(float64); !ok {
+		r.Code = common.ErrCode
+		r.Message = "GetProducts total_count response error"
+		return result
 	} else {
-		result.TotalCount = int(total)
+		result.Data.TotalCount = int(total)
 	}
 
 	//断言列表
-	products, err := b.common.CheckSliceAny(r["products"])
+	products, err := b.CheckSliceAny(r.Data["products"])
 	if err != nil {
-		err = errors.New("GetProducts products" + err.Error())
-		return result, err
+		r.Code = common.ErrCode
+		r.Message = "GetProducts products" + err.Error()
+		return result
 	}
 	if len(products) < 1 {
-		return result, nil
+		return result
 	}
 
 	//获取具体产品
 	for _, product := range products {
-		if tmp, err := b.common.CheckMapStringAny(product); err == nil && tmp != nil {
+		if tmp, err := b.CheckMapStringAny(product); err == nil && tmp != nil {
 			//product_sync_fail_reasons
-			productSyncFailReasons, err := b.common.ChangeAnyToStringSlice(tmp["product_sync_fail_reasons"])
+			productSyncFailReasons, err := b.ChangeAnyToStringSlice(tmp["product_sync_fail_reasons"])
 			if err != nil {
-				return result, err
+				r.Code = common.ErrCode
+				r.Message = "GetProducts product_sync_fail_reasons" + err.Error()
+				return result
 			}
 
 			//sales_regions
-			salesRegions, err := b.common.ChangeAnyToStringSlice(tmp["sales_regions"])
+			salesRegions, err := b.ChangeAnyToStringSlice(tmp["sales_regions"])
 			if err != nil {
-				return result, err
+				r.Code = common.ErrCode
+				r.Message = "GetProducts sales_regions" + err.Error()
+				return result
 			}
 
 			//skus
 			var skus []Skus
-			if skusTmp, err := b.common.CheckSliceAny(tmp["skus"]); err == nil {
+			if skusTmp, err := b.CheckSliceAny(tmp["skus"]); err == nil {
 				for _, sku := range skusTmp {
-					if skusString, err := b.common.CheckMapStringAny(sku); err == nil {
-						price, _ := b.common.CheckMapStringAny(skusString["price"])
+					if skusString, err := b.CheckMapStringAny(sku); err == nil {
+						price, _ := b.CheckMapStringAny(skusString["price"])
 						var inventorys []Inventory
-						inventory, _ := b.common.CheckSliceAny(tmp)
+						inventory, _ := b.CheckSliceAny(skusString["inventory"])
 						if len(inventory) > 0 {
 							for _, value := range inventory {
-								if tmpInventory, err := b.common.CheckMapStringAny(value); err != nil {
+								if tmpInventory, err := b.CheckMapStringAny(value); err == nil {
 									inventorys = append(inventorys, Inventory{
-										Quantity:    tmpInventory["quantity"].(int),
+										Quantity:    int(tmpInventory["quantity"].(float64)),
 										WarehouseId: tmpInventory["warehouse_id"].(string),
 									})
 								}
@@ -97,9 +112,9 @@ func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map
 							Id:        skusString["id"].(string),
 							Inventory: inventorys,
 							Price: Price{
-								Currency:          b.common.CheckString(price["currency"]),
-								SalePrice:         b.common.CheckString(price["sale_price"]),
-								TaxExclusivePrice: b.common.CheckString(price["tax_exclusive_price"]),
+								Currency:          b.CheckString(price["currency"]),
+								SalePrice:         b.CheckString(price["sale_price"]),
+								TaxExclusivePrice: b.CheckString(price["tax_exclusive_price"]),
 							},
 							SellerSku: skusString["seller_sku"].(string),
 						})
@@ -107,13 +122,13 @@ func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map
 				}
 			}
 
-			result.Products = append(result.Products, Products{
+			result.Data.Products = append(result.Data.Products, Products{
 				CreateTime:             int(tmp["create_time"].(float64)),
 				Id:                     tmp["id"].(string),
 				IsNotForSale:           tmp["is_not_for_sale"].(bool),
 				ProductSyncFailReasons: productSyncFailReasons,
 				SalesRegions:           salesRegions,
-				Skus:                   nil,
+				Skus:                   skus,
 				Status:                 tmp["status"].(string),
 				Title:                  tmp["title"].(string),
 				UpdateTime:             int(tmp["update_time"].(float64)),
@@ -121,7 +136,7 @@ func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map
 		}
 	}
 
-	return
+	return result
 }
 
 // 产品
@@ -141,8 +156,8 @@ func (b *TiktokProduct) GetProductsConfig(token string) common.GetApiConfig { //
 func GetNewService(config *config.Config) ProductApiClientInterface {
 	if newServer == nil {
 		newServer = &TiktokProduct{
-			config: config,
-			common: common.GetNewService(config),
+			config:           config,
+			TiktokShopCommon: common.GetNewService(config),
 		}
 	}
 	return newServer

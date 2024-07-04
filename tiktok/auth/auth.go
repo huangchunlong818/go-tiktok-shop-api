@@ -1,93 +1,114 @@
 package auth
 
 import (
-	"errors"
-	"github.com/go-resty/resty/v2"
+	"context"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
-	"strconv"
-	"time"
 )
 
 //tiktok shop 授权
 
 type TiktokShopAuth struct {
-	config *config.Config
+	config                   *config.Config
+	*common.TiktokShopCommon // 嵌入 common.TiktokShopCommon
 }
 
 var newServer *TiktokShopAuth
 
 type AuthClientInterface interface {
-	ReloadToken(refreshToken string) (result GetTokenByAuthCodeData, err error)
-	GetTokenByAuthCode(authCode string) (result GetTokenByAuthCodeData, err error)
+	ReloadToken(ctx context.Context, refreshToken string) GetTokenByAuthCodeRsp
+	GetTokenByAuthCode(ctx context.Context, authCode string) GetTokenByAuthCodeRsp
 	GetAuthUrl(country string) string
-	GetTokenByAuthCodeApi() string
-	ReloadTokenUrl() string
+	GetTokenByAuthCodeApi() common.GetApiConfig
+	ReloadTokenUrl() common.GetApiConfig
 }
 
 // getNewService 是一个私有函数，用于返回 tiktokShopAuths 实例
 func GetNewService(config *config.Config) AuthClientInterface {
 	if newServer == nil {
 		newServer = &TiktokShopAuth{
-			config: config,
+			config:           config,
+			TiktokShopCommon: common.GetNewService(config),
 		}
 	}
 	return newServer
 }
 
 // 根据reftoken 刷新令牌
-func (a *TiktokShopAuth) ReloadToken(refreshToken string) (result GetTokenByAuthCodeData, err error) {
+func (a *TiktokShopAuth) ReloadToken(ctx context.Context, refreshToken string) GetTokenByAuthCodeRsp {
+	result := GetTokenByAuthCodeRsp{}
 	if refreshToken == "" {
-		return result, errors.New("refresh_token cannot be empty")
+		result.Code = common.ErrCode
+		result.Message = "refresh_token cannot be empty"
+		return result
 	}
 
-	return a.DoToken("refresh_token", refreshToken, a.ReloadTokenUrl(), "refresh_token")
+	query := map[string]string{
+		"refresh_token": refreshToken,
+		"grant_type":    "refresh_token",
+	}
+	//请求接口
+	r := a.SendTiktokApi(ctx, a.ReloadTokenUrl(), query, nil)
+	result = GetTokenByAuthCodeRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !a.IsSuccess(r) {
+		return result
+	}
+
+	return a.DoAuthData(r, result)
+}
+
+// 处理授权和刷新token返回结果
+func (a *TiktokShopAuth) DoAuthData(r common.ComApiRsp, result GetTokenByAuthCodeRsp) GetTokenByAuthCodeRsp {
+	data, err := a.ChangeAnyToStringSlice(r.Data["granted_scopes"])
+	if err != nil {
+		result.Code = common.ErrCode
+		result.Message = err.Error()
+		return result
+	}
+	result.Data = GetTokenByAuthCodeData{
+		AccessToken:          r.Data["access_token"].(string),
+		AccessTokenExpireIn:  int64(r.Data["access_token_expire_in"].(float64)),
+		RefreshToken:         r.Data["refresh_token"].(string),
+		RefreshTokenExpireIn: int64(r.Data["refresh_token_expire_in"].(float64)),
+		OpenID:               r.Data["openid"].(string),
+		SellerName:           r.Data["seller_name"].(string),
+		SellerBaseRegion:     r.Data["seller_base_region"].(string),
+		UserType:             int(r.Data["user_type"].(float64)),
+		GrantedScopes:        data,
+	}
+
+	return result
 }
 
 // 根据授权码获取token和 reftoken
-func (a *TiktokShopAuth) GetTokenByAuthCode(authCode string) (result GetTokenByAuthCodeData, err error) {
+func (a *TiktokShopAuth) GetTokenByAuthCode(ctx context.Context, authCode string) GetTokenByAuthCodeRsp {
+	result := GetTokenByAuthCodeRsp{}
 	if authCode == "" {
-		return result, errors.New("auth_code cannot be empty")
+		result.Code = common.ErrCode
+		result.Message = "authCode cannot be empty"
+		return result
 	}
 
-	return a.DoToken("auth_code", authCode, a.GetTokenByAuthCodeApi(), "authorized_code")
-}
-
-var client = resty.New()
-
-// 操作token
-func (a *TiktokShopAuth) DoToken(paramKey string, paramValue string, api string, grantType string) (result GetTokenByAuthCodeData, err error) {
-	//定义响应体
-	var (
-		res    GetTokenByAuthCodeRsp
-		errRsp common.ComErrorResponse
-	)
-
-	//请求tiktok
-	client.SetTimeout(10 * time.Second)
-	resp, err := client.R().
-		SetQueryParam("app_key", a.config.App.AppKey).
-		SetQueryParam("app_secret", a.config.App.Secret).
-		SetQueryParam(paramKey, paramValue).
-		SetQueryParam("grant_type", grantType).
-		SetResult(&res).
-		SetError(&errRsp).
-		Get(api)
-	if err != nil {
-		return result, err
+	query := map[string]string{
+		"auth_code":  authCode,
+		"grant_type": "authorized_code",
 	}
-	if resp.IsSuccess() {
-		//这里也有可能是失败的
-		if res.Code > 0 {
-			err = errors.New("错误信息：" + res.Message + "，错误代码：" + strconv.FormatInt(int64(res.Code), 10))
-		} else {
-			result = res.Data
-		}
-	} else {
-		err = errors.New("错误信息：" + errRsp.Message + "，错误代码：" + strconv.FormatInt(int64(errRsp.Code), 10))
+	//请求接口
+	r := a.SendTiktokApi(ctx, a.GetTokenByAuthCodeApi(), query, nil)
+	result = GetTokenByAuthCodeRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !a.IsSuccess(r) {
+		return result
 	}
 
-	return result, err
+	return a.DoAuthData(r, result)
 }
 
 // 获取授权基础连接
@@ -101,11 +122,25 @@ func (a *TiktokShopAuth) GetAuthUrl(country string) string {
 }
 
 // 获取token和reftoken API地址
-func (a *TiktokShopAuth) GetTokenByAuthCodeApi() string {
-	return a.config.AuthApiDomain + "/api/v2/token/get"
+func (a *TiktokShopAuth) GetTokenByAuthCodeApi() common.GetApiConfig {
+	api := "/api/v2/token/get" //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",           //请求头content-type 类型
+		Method:      "get",                        //请求方法类型
+		Api:         api,                          //请求API PATH地址不带域名
+		FullApi:     a.config.AuthApiDomain + api, //请求的API 完整地址，带域名
+	}
 }
 
 // 获取刷新token地址
-func (a *TiktokShopAuth) ReloadTokenUrl() string {
-	return a.config.AuthApiDomain + "/api/v2/token/refresh"
+func (a *TiktokShopAuth) ReloadTokenUrl() common.GetApiConfig {
+	api := "/api/v2/token/refresh" //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",           //请求头content-type 类型
+		Method:      "get",                        //请求方法类型
+		Api:         api,                          //请求API PATH地址不带域名
+		FullApi:     a.config.AuthApiDomain + api, //请求的API 完整地址，带域名
+	}
 }

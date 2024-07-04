@@ -29,9 +29,10 @@ func GetNewService(config *config.Config) *TiktokShopCommon {
 
 // 通用结构体
 type ComApiRsp struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-	Data    any    `json:"data"`
+	Code     int            `json:"code"`     //逻辑状态码
+	Message  string         `json:"message"`  //错误信息
+	Data     map[string]any `json:"data"`     //数据
+	HttpCode int            `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 // 通用错误体
@@ -39,8 +40,6 @@ type ComErrorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
-
-var restyClient = resty.New()
 
 // 发送请求参数
 type SendParams struct {
@@ -54,6 +53,110 @@ type SendParams struct {
 // 通用tiktok shop api 请求接口类型定义
 type GetApiConfig struct {
 	ContentType, Method, Api, FullApi, Token string
+}
+
+var (
+	ErrCode     = 777 //请求tiktok接口发生错误的时候，自定义的错误码
+	restyClient = resty.New()
+)
+
+// 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数
+func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) ComApiRsp {
+	result := ComApiRsp{}
+	if reqs.Token == "" && reqs.FullApi == "" {
+		result.Code = ErrCode
+		result.Message = "Token和请求API不能为空"
+		return result
+	}
+
+	//共用参数设置进query,主要是app_key，sign，timestamp
+	if query == nil {
+		query = make(map[string]string)
+	}
+	query["app_key"] = c.config.App.AppKey
+	query["timestamp"] = strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	query["sign"] = sign.GetNewService(c.config).GetSign(reqs.Api, reqs.ContentType, query, body) //获取签名
+
+	//设置头部参数 x-tts-access-token  和 Content-Type
+	header := map[string]string{
+		"Content-Type":       reqs.ContentType,
+		"x-tts-access-token": reqs.Token,
+	}
+
+	//组装请求参数
+	params := SendParams{
+		Api:     reqs.FullApi,
+		Method:  reqs.Method,
+		Query:   query,
+		Body:    body,
+		Headers: header,
+	}
+
+	//请求接口
+	return c.SendApi(ctx, params)
+}
+
+func (c *TiktokShopCommon) IsSuccess(r ComApiRsp) bool {
+	return r.HttpCode > 199 && r.HttpCode < 300 && r.Code == 0
+}
+
+// 发起API请求 目前适用tiktok shop 所有API请求，跟auth 区分开
+func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) ComApiRsp {
+	//定义响应体
+	var (
+		res    ComApiRsp
+		errRsp ComErrorResponse
+		resp   *resty.Response
+	)
+	result := ComApiRsp{
+		Code:     0,
+		Message:  "",
+		HttpCode: 200,
+		Data:     nil,
+	}
+
+	//请求tiktok
+	var err error
+	restyClient.SetTimeout(10 * time.Second)
+	tmpResty := restyClient.R().
+		SetContext(ctx). //如果ctx.Done()通道关闭，则中断请求执行
+		SetQueryParams(params.Query).
+		SetBody(params.Body).
+		SetHeaders(params.Headers).
+		SetResult(&res).
+		SetError(&errRsp)
+	switch params.Method {
+	case "post":
+		resp, err = tmpResty.Post(params.Api)
+	case "get":
+		resp, err = tmpResty.Get(params.Api)
+	case "put":
+		resp, err = tmpResty.Put(params.Api)
+	case "delete":
+		resp, err = tmpResty.Delete(params.Api)
+	default:
+		err = errors.New("请求方式错误")
+	}
+	if err != nil {
+		result.Code = ErrCode
+		result.Message = err.Error()
+		return result
+	}
+	if resp.IsSuccess() {
+		//这里也有可能是失败的
+		if res.Code > 0 {
+			result.Code = res.Code
+			result.Message = res.Message
+		} else {
+			result.Data = res.Data
+		}
+	} else {
+		result.HttpCode = resp.StatusCode()
+		result.Code = errRsp.Code
+		result.Message = errRsp.Message
+	}
+
+	return result
 }
 
 // []any 变成 []string
@@ -107,95 +210,4 @@ func (c *TiktokShopCommon) CheckString(tmp any) string {
 	}
 
 	return tmp.(string)
-}
-
-// 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数
-func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) (result map[string]any, err error) {
-	if reqs.Token == "" && reqs.FullApi == "" {
-		return nil, errors.New("Token和请求API不能为空")
-	}
-
-	//共用参数设置进query,主要是app_key，sign，timestamp
-	if query == nil {
-		query = make(map[string]string)
-	}
-	query["app_key"] = c.config.App.AppKey
-	query["timestamp"] = strconv.FormatInt(time.Now().UTC().Unix(), 10)
-	query["sign"] = sign.GetNewService(c.config).GetSign(reqs.Api, reqs.ContentType, query, body) //获取签名
-
-	//设置头部参数 x-tts-access-token  和 Content-Type
-	header := map[string]string{
-		"Content-Type":       reqs.ContentType,
-		"x-tts-access-token": reqs.Token,
-	}
-
-	//组装请求参数
-	params := SendParams{
-		Api:     reqs.FullApi,
-		Method:  reqs.Method,
-		Query:   query,
-		Body:    body,
-		Headers: header,
-	}
-
-	//请求接口
-	tmp, err := c.SendApi(ctx, params)
-
-	//解析成 map 返回
-	if err != nil {
-		return result, err
-	}
-	result, err = c.CheckMapStringAny(tmp)
-	if err != nil {
-		err = errors.New(reqs.Api + err.Error())
-	}
-
-	return result, err
-}
-
-// 发起API请求 目前适用tiktok shop 所有API请求，跟auth 区分开
-func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) (result any, err error) {
-	//定义响应体
-	var (
-		res    ComApiRsp
-		errRsp ComErrorResponse
-		resp   *resty.Response
-	)
-
-	//请求tiktok
-	restyClient.SetTimeout(10 * time.Second)
-	tmpResty := restyClient.R().
-		SetContext(ctx). //如果ctx.Done()通道关闭，则中断请求执行
-		SetQueryParams(params.Query).
-		SetBody(params.Body).
-		SetHeaders(params.Headers).
-		SetResult(&res).
-		SetError(&errRsp)
-	switch params.Method {
-	case "post":
-		resp, err = tmpResty.Post(params.Api)
-	case "get":
-		resp, err = tmpResty.Get(params.Api)
-	case "put":
-		resp, err = tmpResty.Put(params.Api)
-	case "delete":
-		resp, err = tmpResty.Delete(params.Api)
-	default:
-		return nil, errors.New("请求方式错误")
-	}
-	if err != nil {
-		return result, err
-	}
-	if resp.IsSuccess() {
-		//这里也有可能是失败的
-		if res.Code > 0 {
-			err = errors.New("错误信息：" + res.Message + "，错误代码：" + strconv.FormatInt(int64(res.Code), 10))
-		} else {
-			result = res.Data
-		}
-	} else {
-		err = errors.New("异常信息：" + errRsp.Message + "，错误代码：" + strconv.FormatInt(int64(errRsp.Code), 10))
-	}
-
-	return result, err
 }

@@ -2,7 +2,6 @@ package widget
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -12,13 +11,13 @@ import (
 
 type TiktokWidget struct {
 	config *config.Config
-	common *common.TiktokShopCommon
+	*common.TiktokShopCommon
 }
 
 var newServer *TiktokWidget
 
 type WidgetApiClientInterface interface {
-	GetWidgetToken(ctx context.Context, token string) (result Token, err error)
+	GetWidgetToken(ctx context.Context, token string) GetTokenRsp
 	GetWidgetTokenConfig(token string) common.GetApiConfig
 }
 
@@ -26,31 +25,41 @@ type WidgetApiClientInterface interface {
 func GetNewService(config *config.Config) WidgetApiClientInterface {
 	if newServer == nil {
 		newServer = &TiktokWidget{
-			config: config,
-			common: common.GetNewService(config),
+			config:           config,
+			TiktokShopCommon: common.GetNewService(config),
 		}
 	}
 	return newServer
 }
 
 // 获取所有授权店铺
-func (s *TiktokWidget) GetWidgetToken(ctx context.Context, token string) (result Token, err error) {
+func (s *TiktokWidget) GetWidgetToken(ctx context.Context, token string) GetTokenRsp {
 	//请求接口
-	r, err := s.common.SendTiktokApi(ctx, s.GetWidgetTokenConfig(token), nil, nil)
+	r := s.SendTiktokApi(ctx, s.GetWidgetTokenConfig(token), nil, nil)
+	result := GetTokenRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !s.IsSuccess(r) {
+		return result
+	}
 
 	//断言所有店铺数据 是一个 any切片
-	if data, err := s.common.CheckMapStringAny(r["widget_token"]); err != nil {
-		err = errors.New("GetWidgetToken widget_token " + err.Error())
+	if data, err := s.CheckMapStringAny(r.Data["widget_token"]); err != nil {
+		r.Code = common.ErrCode
+		r.Message = "GetWidgetToken widget_token " + err.Error()
+		return result
 	} else {
 		if data != nil {
-			result = Token{
+			result.Data = Token{
 				Token:    data["token"].(string),
 				ExpireAt: int64(data["expire_at"].(float64)),
 			}
 		}
 	}
 
-	return
+	return result
 }
 
 // 获取小部件token

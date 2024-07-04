@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -11,23 +10,23 @@ import (
 //tiktok shop
 
 type TiktokShop struct {
-	config *config.Config
-	common *common.TiktokShopCommon
+	config                   *config.Config
+	*common.TiktokShopCommon // 嵌入 common.TiktokShopCommon
 }
 
 var newServer *TiktokShop
 
 type AuthApiClientInterface interface {
 	GetAuthorizedShopsApi(token string) common.GetApiConfig
-	GetAuthorizedShops(ctx context.Context, token string) (result []Shops, err error)
+	GetAuthorizedShops(ctx context.Context, token string) ShopsRsp
 }
 
 // 获取实例
 func GetNewService(config *config.Config) AuthApiClientInterface {
 	if newServer == nil {
 		newServer = &TiktokShop{
-			config: config,
-			common: common.GetNewService(config),
+			config:           config,
+			TiktokShopCommon: common.GetNewService(config),
 		}
 	}
 	return newServer
@@ -47,26 +46,32 @@ func (s *TiktokShop) GetAuthorizedShopsApi(token string) common.GetApiConfig { /
 }
 
 // 获取所有授权店铺
-func (s *TiktokShop) GetAuthorizedShops(ctx context.Context, token string) (result []Shops, err error) {
+func (s *TiktokShop) GetAuthorizedShops(ctx context.Context, token string) ShopsRsp {
 	//请求接口
-	r, err := s.common.SendTiktokApi(ctx, s.GetAuthorizedShopsApi(token), nil, nil)
-	if err != nil {
-		return
+	r := s.SendTiktokApi(ctx, s.GetAuthorizedShopsApi(token), nil, nil)
+	result := ShopsRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !s.IsSuccess(r) {
+		return result
 	}
 
 	//断言所有店铺数据 是一个 any切片
-	data, err := s.common.CheckSliceAny(r["shops"])
+	data, err := s.CheckSliceAny(r.Data["shops"])
 	if err != nil {
-		err = errors.New("GetAuthorizedShopsApi shops " + err.Error())
-		return
+		r.Code = common.ErrCode
+		r.Message = "GetAuthorizedShopsApi shops " + err.Error()
+		return result
 	}
 	if len(data) < 1 {
-		return
+		return result
 	}
 	for _, now := range data {
 		//断言单个授权店铺， 是 map[string]any
-		if tmp, err := s.common.CheckMapStringAny(now); err == nil && tmp != nil {
-			result = append(result, Shops{
+		if tmp, err := s.CheckMapStringAny(now); err == nil && tmp != nil {
+			result.Data = append(result.Data, Shops{
 				Cipher:     tmp["cipher"].(string),
 				Code:       tmp["code"].(string),
 				Id:         tmp["id"].(string),
@@ -77,5 +82,5 @@ func (s *TiktokShop) GetAuthorizedShops(ctx context.Context, token string) (resu
 		}
 	}
 
-	return
+	return result
 }
