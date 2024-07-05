@@ -74,6 +74,7 @@ func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig,
 		query = make(map[string]string)
 	}
 	query["app_key"] = c.config.App.AppKey
+	query["app_secret"] = c.config.App.Secret
 	query["timestamp"] = strconv.FormatInt(time.Now().UTC().Unix(), 10)
 	query["sign"] = sign.GetNewService(c.config).GetSign(reqs.Api, reqs.ContentType, query, body) //获取签名
 
