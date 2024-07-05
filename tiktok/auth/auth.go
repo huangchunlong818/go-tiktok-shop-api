@@ -74,7 +74,7 @@ func (a *TiktokShopAuth) DoAuthData(r common.ComApiRsp, result GetTokenByAuthCod
 		AccessTokenExpireIn:  int64(r.Data["access_token_expire_in"].(float64)),
 		RefreshToken:         r.Data["refresh_token"].(string),
 		RefreshTokenExpireIn: int64(r.Data["refresh_token_expire_in"].(float64)),
-		OpenID:               r.Data["openid"].(string),
+		OpenID:               r.Data["open_id"].(string),
 		SellerName:           r.Data["seller_name"].(string),
 		SellerBaseRegion:     r.Data["seller_base_region"].(string),
 		UserType:             int(r.Data["user_type"].(float64)),
