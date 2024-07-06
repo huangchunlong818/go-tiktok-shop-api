@@ -60,9 +60,17 @@ var (
 	restyClient = resty.New()
 )
 
+// 通用结构体
+type TiktokApiRsp struct {
+	Code     int    `json:"code"`     //逻辑状态码
+	Message  string `json:"message"`  //错误信息
+	Data     []byte `json:"data"`     //数据
+	HttpCode int    `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
 // 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数
-func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) ComApiRsp {
-	result := ComApiRsp{}
+func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) TiktokApiRsp {
+	result := TiktokApiRsp{}
 	if reqs.Token == "" && reqs.FullApi == "" {
 		result.Code = ErrCode
 		result.Message = "Token和请求API不能为空"
@@ -96,23 +104,22 @@ func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig,
 	return c.SendApi(ctx, params)
 }
 
-func (c *TiktokShopCommon) IsSuccess(r ComApiRsp) bool {
+func (c *TiktokShopCommon) IsSuccess(r TiktokApiRsp) bool {
 	return r.HttpCode > 199 && r.HttpCode < 300 && r.Code == 0
 }
 
 // 发起API请求 目前适用tiktok shop 所有API请求，跟auth 区分开
-func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) ComApiRsp {
+func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) TiktokApiRsp {
 	//定义响应体
 	var (
 		res    ComApiRsp
 		errRsp ComErrorResponse
 		resp   *resty.Response
 	)
-	result := ComApiRsp{
+	result := TiktokApiRsp{
 		Code:     0,
 		Message:  "",
 		HttpCode: 200,
-		Data:     nil,
 	}
 
 	//请求tiktok
@@ -148,7 +155,7 @@ func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) ComAp
 			result.Code = res.Code
 			result.Message = res.Message
 		} else {
-			result.Data = res.Data
+			result.Data = resp.Body()
 		}
 	} else {
 		result.HttpCode = resp.StatusCode()
@@ -157,57 +164,4 @@ func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) ComAp
 	}
 
 	return result
-}
-
-// []any 变成 []string
-func (c *TiktokShopCommon) ChangeAnyToStringSlice(tmp any) ([]string, error) {
-	var dataString []string
-	data, err := c.CheckSliceAny(tmp)
-	if err != nil {
-		return dataString, err
-	}
-	if len(data) > 0 {
-		for _, value := range data {
-			dataString = append(dataString, value.(string))
-		}
-	}
-	return dataString, nil
-}
-
-// 断言检查是否[]any类型
-func (c *TiktokShopCommon) CheckSliceAny(tmp any) ([]any, error) {
-	//只是没数据
-	if tmp == nil {
-		return nil, nil
-	}
-	//断言
-	result, ok := tmp.([]any)
-	if !ok {
-		return nil, errors.New(" response error, not []any")
-	}
-	return result, nil
-}
-
-// 断言检查是否map string any类型
-func (c *TiktokShopCommon) CheckMapStringAny(tmp any) (map[string]any, error) {
-	//只是没数据
-	if tmp == nil {
-		return nil, nil
-	}
-	result, ok := tmp.(map[string]any)
-	if !ok {
-		return nil, errors.New(" response error, not map[string]any]")
-	}
-	return result, nil
-}
-
-// 断言string 类型
-func (c *TiktokShopCommon) CheckString(tmp any) string {
-	var strings string
-	//只是没数据
-	if tmp == nil {
-		return strings
-	}
-
-	return tmp.(string)
 }

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -58,28 +59,12 @@ func (s *TiktokShop) GetAuthorizedShops(ctx context.Context, token string) Shops
 		return result
 	}
 
-	//断言所有店铺数据 是一个 any切片
-	data, err := s.CheckSliceAny(r.Data["shops"])
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
 	if err != nil {
 		r.Code = common.ErrCode
-		r.Message = "GetAuthorizedShopsApi shops " + err.Error()
+		r.Message = "GetAuthorizedShops response error " + err.Error()
 		return result
-	}
-	if len(data) < 1 {
-		return result
-	}
-	for _, now := range data {
-		//断言单个授权店铺， 是 map[string]any
-		if tmp, err := s.CheckMapStringAny(now); err == nil && tmp != nil {
-			result.Data = append(result.Data, Shops{
-				Cipher:     tmp["cipher"].(string),
-				Code:       tmp["code"].(string),
-				Id:         tmp["id"].(string),
-				Name:       tmp["name"].(string),
-				Region:     tmp["region"].(string),
-				SellerType: tmp["seller_type"].(string),
-			})
-		}
 	}
 
 	return result

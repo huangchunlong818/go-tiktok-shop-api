@@ -43,12 +43,13 @@ func main() {
 	fmt.Println("产品相关API分类请求：", cate)
 	cateRule := productClient.GetCateRule(ctx, "tttt", "123", nil)
 	fmt.Println("产品相关API分类规则请求：", cateRule)
-	//////请求产品
+
+	//请求产品
 	query := map[string]string{
 		"shop_cipher": "TTP_rFn99gAAAAAb_884OIFnjDUlwzNICXz1",
 		"page_size":   "10",
 	}
 	body := map[string]any{}
-	products := productClient.GetProducts(ctx, "TTP_ddi9XwAAAACYzgCfZsjGkD_X-fg7OFdW5M3e5X3IULLkcgnpWHrMXzyXtq8EtuP1kAsZs8o2w0cDv2keaUfZPa5TirnGuIxf8AtzO5tNXoXPZ6jdK5Io5WUKZBYMukLN5NNs-jX-aC8lJZ1cn-1xlbSvAQugaTnB_XoEnDhQv41pctrsq2Aqgw", query, body)
+	products := productClient.GetProducts(ctx, "TTP_jeYxoQAAAACYzgCfZsjGkD_X-fg7OFdW5M3e5X3IULLkcgnpWHrMXzyXtq8EtuP1kAsZs8o2w0cDv2keaUfZPa5TirnGuIxf8AtzO5tNXoXPZ6jdK5Io5cG3Xm_VdBWEFQ1JSGWjvhrOyCyMI0fcxhVQy4N20SPbmm7R76dKfPzRFAktHRtr8Q", query, body)
 	fmt.Println("产品请求：", products)
 }
