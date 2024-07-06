@@ -47,6 +47,7 @@ func (a *TiktokShopAuth) ReloadToken(ctx context.Context, refreshToken string) G
 	query := map[string]string{
 		"refresh_token": refreshToken,
 		"grant_type":    "refresh_token",
+		"app_secret":    a.config.App.Secret,
 	}
 	//请求接口
 	r := a.SendTiktokApi(ctx, a.ReloadTokenUrl(), query, nil)
@@ -82,6 +83,7 @@ func (a *TiktokShopAuth) GetTokenByAuthCode(ctx context.Context, authCode string
 	query := map[string]string{
 		"auth_code":  authCode,
 		"grant_type": "authorized_code",
+		"app_secret": a.config.App.Secret,
 	}
 	//请求接口
 	r := a.SendTiktokApi(ctx, a.GetTokenByAuthCodeApi(), query, nil)
