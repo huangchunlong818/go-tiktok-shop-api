@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 )
@@ -21,46 +22,12 @@ func (b *TiktokProduct) GetBrands(ctx context.Context, token string, query map[s
 		return result
 	}
 
-	//断言分页token
-	if next, ok := r.Data["next_page_token"].(string); !ok {
-		r.Code = common.ErrCode
-		r.Message = "GetBrandsApi next_page_token response error"
-		return result
-	} else {
-		result.Data.NextPageToken = next
-	}
-
-	//断言总数
-	if total, ok := r.Data["total_count"].(float64); !ok {
-		r.Code = common.ErrCode
-		r.Message = "GetBrandsApi total_count response error"
-		return result
-	} else {
-		result.Data.TotalCount = int(total)
-	}
-
-	//断言品牌列表
-	brands, err := b.CheckSliceAny(r.Data["brands"])
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
 	if err != nil {
 		r.Code = common.ErrCode
-		r.Message = "GetBrandsApi brands" + err.Error()
+		r.Message = "GetBrands response error " + err.Error()
 		return result
-	}
-	if len(brands) < 1 {
-		return result
-	}
-
-	//获取具体品牌
-	for _, brand := range brands {
-		if tmp, err := b.CheckMapStringAny(brand); err == nil && tmp != nil {
-			result.Data.Brands = append(result.Data.Brands, Brands{
-				AuthorizedStatus: tmp["authorized_status"].(string),
-				BrandStatus:      tmp["brand_status"].(string),
-				Id:               tmp["id"].(string),
-				Name:             tmp["name"].(string),
-				IsT1Brand:        tmp["is_t1_brand"].(bool),
-			})
-		}
 	}
 
 	return result

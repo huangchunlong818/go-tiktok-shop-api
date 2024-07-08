@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
 )
@@ -46,6 +47,7 @@ func (a *TiktokShopAuth) ReloadToken(ctx context.Context, refreshToken string) G
 	query := map[string]string{
 		"refresh_token": refreshToken,
 		"grant_type":    "refresh_token",
+		"app_secret":    a.config.App.Secret,
 	}
 	//请求接口
 	r := a.SendTiktokApi(ctx, a.ReloadTokenUrl(), query, nil)
@@ -58,27 +60,12 @@ func (a *TiktokShopAuth) ReloadToken(ctx context.Context, refreshToken string) G
 		return result
 	}
 
-	return a.DoAuthData(r, result)
-}
-
-// 处理授权和刷新token返回结果
-func (a *TiktokShopAuth) DoAuthData(r common.ComApiRsp, result GetTokenByAuthCodeRsp) GetTokenByAuthCodeRsp {
-	data, err := a.ChangeAnyToStringSlice(r.Data["granted_scopes"])
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
 	if err != nil {
-		result.Code = common.ErrCode
-		result.Message = err.Error()
+		r.Code = common.ErrCode
+		r.Message = "ReloadToken response error " + err.Error()
 		return result
-	}
-	result.Data = GetTokenByAuthCodeData{
-		AccessToken:          r.Data["access_token"].(string),
-		AccessTokenExpireIn:  int64(r.Data["access_token_expire_in"].(float64)),
-		RefreshToken:         r.Data["refresh_token"].(string),
-		RefreshTokenExpireIn: int64(r.Data["refresh_token_expire_in"].(float64)),
-		OpenID:               r.Data["open_id"].(string),
-		SellerName:           r.Data["seller_name"].(string),
-		SellerBaseRegion:     r.Data["seller_base_region"].(string),
-		UserType:             int(r.Data["user_type"].(float64)),
-		GrantedScopes:        data,
 	}
 
 	return result
@@ -96,6 +83,7 @@ func (a *TiktokShopAuth) GetTokenByAuthCode(ctx context.Context, authCode string
 	query := map[string]string{
 		"auth_code":  authCode,
 		"grant_type": "authorized_code",
+		"app_secret": a.config.App.Secret,
 	}
 	//请求接口
 	r := a.SendTiktokApi(ctx, a.GetTokenByAuthCodeApi(), query, nil)
@@ -108,7 +96,15 @@ func (a *TiktokShopAuth) GetTokenByAuthCode(ctx context.Context, authCode string
 		return result
 	}
 
-	return a.DoAuthData(r, result)
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
+	if err != nil {
+		r.Code = common.ErrCode
+		r.Message = "GetTokenByAuthCode response error " + err.Error()
+		return result
+	}
+
+	return result
 }
 
 // 获取授权基础连接

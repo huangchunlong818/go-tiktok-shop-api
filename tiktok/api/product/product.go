@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -42,98 +43,13 @@ func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map
 	if !b.IsSuccess(r) {
 		return result
 	}
-	//断言分页token
-	if next, ok := r.Data["next_page_token"].(string); !ok {
-		r.Code = common.ErrCode
-		r.Message = "GetProducts next_page_token response error"
-		return result
-	} else {
-		result.Data.NextPageToken = next
-	}
 
-	//断言总数
-	if total, ok := r.Data["total_count"].(float64); !ok {
-		r.Code = common.ErrCode
-		r.Message = "GetProducts total_count response error"
-		return result
-	} else {
-		result.Data.TotalCount = int(total)
-	}
-
-	//断言列表
-	products, err := b.CheckSliceAny(r.Data["products"])
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
 	if err != nil {
 		r.Code = common.ErrCode
-		r.Message = "GetProducts products" + err.Error()
+		r.Message = "GetBrandsApi response error " + err.Error()
 		return result
-	}
-	if len(products) < 1 {
-		return result
-	}
-
-	//获取具体产品
-	for _, product := range products {
-		if tmp, err := b.CheckMapStringAny(product); err == nil && tmp != nil {
-			//product_sync_fail_reasons
-			productSyncFailReasons, err := b.ChangeAnyToStringSlice(tmp["product_sync_fail_reasons"])
-			if err != nil {
-				r.Code = common.ErrCode
-				r.Message = "GetProducts product_sync_fail_reasons" + err.Error()
-				return result
-			}
-
-			//sales_regions
-			salesRegions, err := b.ChangeAnyToStringSlice(tmp["sales_regions"])
-			if err != nil {
-				r.Code = common.ErrCode
-				r.Message = "GetProducts sales_regions" + err.Error()
-				return result
-			}
-
-			//skus
-			var skus []Skus
-			if skusTmp, err := b.CheckSliceAny(tmp["skus"]); err == nil {
-				for _, sku := range skusTmp {
-					if skusString, err := b.CheckMapStringAny(sku); err == nil {
-						price, _ := b.CheckMapStringAny(skusString["price"])
-						var inventorys []Inventory
-						inventory, _ := b.CheckSliceAny(skusString["inventory"])
-						if len(inventory) > 0 {
-							for _, value := range inventory {
-								if tmpInventory, err := b.CheckMapStringAny(value); err == nil {
-									inventorys = append(inventorys, Inventory{
-										Quantity:    int(tmpInventory["quantity"].(float64)),
-										WarehouseId: tmpInventory["warehouse_id"].(string),
-									})
-								}
-							}
-						}
-						skus = append(skus, Skus{
-							Id:        skusString["id"].(string),
-							Inventory: inventorys,
-							Price: Price{
-								Currency:          b.CheckString(price["currency"]),
-								SalePrice:         b.CheckString(price["sale_price"]),
-								TaxExclusivePrice: b.CheckString(price["tax_exclusive_price"]),
-							},
-							SellerSku: skusString["seller_sku"].(string),
-						})
-					}
-				}
-			}
-
-			result.Data.Products = append(result.Data.Products, Products{
-				CreateTime:             int(tmp["create_time"].(float64)),
-				Id:                     tmp["id"].(string),
-				IsNotForSale:           tmp["is_not_for_sale"].(bool),
-				ProductSyncFailReasons: productSyncFailReasons,
-				SalesRegions:           salesRegions,
-				Skus:                   skus,
-				Status:                 tmp["status"].(string),
-				Title:                  tmp["title"].(string),
-				UpdateTime:             int(tmp["update_time"].(float64)),
-			})
-		}
 	}
 
 	return result

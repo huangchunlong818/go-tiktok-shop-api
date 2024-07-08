@@ -2,6 +2,7 @@ package widget
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/common"
 	"github.com/huangchunlong818/go-tiktok-shop-api/tiktok/common/config"
@@ -45,18 +46,12 @@ func (s *TiktokWidget) GetWidgetToken(ctx context.Context, token string) GetToke
 		return result
 	}
 
-	//断言所有店铺数据 是一个 any切片
-	if data, err := s.CheckMapStringAny(r.Data["widget_token"]); err != nil {
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
+	if err != nil {
 		r.Code = common.ErrCode
-		r.Message = "GetWidgetToken widget_token " + err.Error()
+		r.Message = "GetWidgetToken response error " + err.Error()
 		return result
-	} else {
-		if data != nil {
-			result.Data = Token{
-				Token:    data["token"].(string),
-				ExpireAt: int64(data["expire_at"].(float64)),
-			}
-		}
 	}
 
 	return result
