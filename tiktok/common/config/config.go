@@ -7,14 +7,15 @@ import (
 
 // 配置
 type Config struct {
-	Version        string    //版本，通用大版本
-	WidgetVersion  string    //版本，widget小部件 版本
-	ProductVersion string    //版本，产品 版本
-	App            AppConfig //tiktok shop 应用 app配置
-	UsAuthUrl      string    //美国授权地址
-	OtherAuthUrl   string    //美国外的授权地址
-	AuthApiDomain  string    //授权接口域名
-	TkApiDomain    string    //tiktok shop api 操作域名
+	Version              string    //版本，通用大版本
+	WidgetVersion        string    //版本，widget小部件 版本
+	PrerequisitesVersion string    //版本，获取店铺的商品规则以及是否满足上架商品的条件
+	ProductVersion       string    //版本，产品 版本
+	App                  AppConfig //tiktok shop 应用 app配置
+	UsAuthUrl            string    //美国授权地址
+	OtherAuthUrl         string    //美国外的授权地址
+	AuthApiDomain        string    //授权接口域名
+	TkApiDomain          string    //tiktok shop api 操作域名
 }
 
 type AppConfig struct {
@@ -53,6 +54,10 @@ func (t *TiktokShopClient) SetConfig(options ...Option) *TiktokShopClient {
 	// 检查是否设置了 WidgetVersion，如果没有则设置为默认值
 	if t.configs.WidgetVersion == "" {
 		t.configs.WidgetVersion = DefaultWidgetVersion()
+	}
+	// 检查是否设置了 PrerequisitesVersion，如果没有则设置为默认值
+	if t.configs.PrerequisitesVersion == "" {
+		t.configs.PrerequisitesVersion = DefaultPrerequisitesVersion()
 	}
 	// 检查是否设置了 UsAuthUrl，如果没有则设置为默认值
 	if t.configs.UsAuthUrl == "" {
@@ -134,6 +139,11 @@ func DefaultApiVersion() string {
 // tiktok shop api widget 小部件版本 默认值
 func DefaultWidgetVersion() string {
 	return "202401"
+}
+
+// tiktok shop api Check Listing Prerequisites 获取店铺的商品规则以及是否满足上架商品的条件
+func DefaultPrerequisitesVersion() string {
+	return "202312"
 }
 
 // tiktok shop api product产品版本 默认值

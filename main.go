@@ -11,9 +11,9 @@ func main() {
 	ctx := context.Background()
 
 	tmp := config.WithApp(config.AppConfig{
-		AppId:  "7373895977494873902",
-		AppKey: "6ck2qip0j8tni",
-		Secret: "812d148e09ce85a8fefd563db92ecddcc10d8eb0",
+		AppId:  "xxxx",
+		AppKey: "xxxx",
+		Secret: "xxxx",
 	})
 	//获取实例对象
 	shopClient := tiktokShop.NewTiktokShopClient(tmp)
@@ -44,12 +44,27 @@ func main() {
 	cateRule := productClient.GetCateRule(ctx, "tttt", "123", nil)
 	fmt.Println("产品相关API分类规则请求：", cateRule)
 
-	//请求产品
+	// 产品相关--发布商品校验规则
+	prerequisitesQuery := map[string]string{
+		"shop_cipher": "xxxxx",
+	}
+	prerequisites := productClient.GetPrerequisites(ctx, "token", prerequisitesQuery)
+	fmt.Println("发布商品校验规则：", prerequisites)
+
+	// 产品相关--详情
+	productQuery := map[string]string{
+		"shop_cipher":                 "xxxxx",
+		"return_under_review_version": "0", // true: "1";false: "0"
+	}
+	product := productClient.GetProduct(ctx, "token", "productId", productQuery)
+	fmt.Println("产品详情：", product)
+
+	// 产品相关--产品列表
 	query := map[string]string{
-		"shop_cipher": "TTP_rFn99gAAAAAb_884OIFnjDUlwzNICXz1",
+		"shop_cipher": "xxxx",
 		"page_size":   "10",
 	}
 	body := map[string]any{}
-	products := productClient.GetProducts(ctx, "TTP_jeYxoQAAAACYzgCfZsjGkD_X-fg7OFdW5M3e5X3IULLkcgnpWHrMXzyXtq8EtuP1kAsZs8o2w0cDv2keaUfZPa5TirnGuIxf8AtzO5tNXoXPZ6jdK5Io5cG3Xm_VdBWEFQ1JSGWjvhrOyCyMI0fcxhVQy4N20SPbmm7R76dKfPzRFAktHRtr8Q", query, body)
+	products := productClient.GetProducts(ctx, "xxxxx", query, body)
 	fmt.Println("产品请求：", products)
 }

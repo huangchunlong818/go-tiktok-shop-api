@@ -129,3 +129,207 @@ type Products struct {
 	Title                  string   `json:"title"`
 	UpdateTime             int      `json:"update_time"`
 }
+
+// PrerequisitesResultRsp 店铺的商品规则以及是否满足上架商品的条件
+type PrerequisitesResultRsp struct {
+	Code     int              `json:"code"`     //逻辑状态码
+	Message  string           `json:"message"`  //错误信息
+	Data     PrerequisitesRsp `json:"data"`     //数据
+	HttpCode int              `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type PrerequisitesRsp struct {
+	CheckResults []CheckResults `json:"check_results"`
+}
+
+type CheckResults struct {
+	CheckItem   string   `json:"check_item"`
+	FailReasons []string `json:"fail_reasons"`
+	IsFailed    bool     `json:"is_failed"`
+}
+
+// ProductResultRsp 产品详情响应
+type ProductResultRsp struct {
+	Code     int     `json:"code"`     //逻辑状态码
+	Message  string  `json:"message"`  //错误信息
+	Data     Product `json:"data"`     //数据
+	HttpCode int     `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+// CategoryChain 分类链
+type CategoryChain struct {
+	Id        string `json:"id"`
+	ParentId  string `json:"parent_id"`
+	LocalName string `json:"local_name"`
+	IsLeaf    bool   `json:"is_leaf"`
+}
+
+type Brand struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type Image struct {
+	Height    int      `json:"height"`
+	Width     int      `json:"width"`
+	ThumbUrls []string `json:"thumb_urls"`
+	Uri       string   `json:"uri"`
+	Urls      []string `json:"urls"`
+}
+
+type File struct {
+	Id     string   `json:"id"`
+	Urls   []string `json:"urls"`
+	Name   string   `json:"name"`
+	Format string   `json:"format"`
+}
+
+type Video struct {
+	Id       string `json:"id"`
+	CoverUrl string `json:"cover_url"`
+	Format   string `json:"format"`
+	Url      string `json:"url"`
+	Width    int    `json:"width"`
+	Height   int    `json:"height"`
+	Size     int    `json:"size"`
+}
+
+type PackageDimensions struct {
+	Length string `json:"length"`
+	Width  string `json:"width"`
+	Height string `json:"height"`
+	Unit   string `json:"unit"`
+}
+
+type PackageWeight struct {
+	Value string `json:"value"`
+	Unit  string `json:"unit"`
+}
+
+type SkuPrice struct {
+	TaxExclusivePrice string `json:"tax_exclusive_price"`
+	SalePrice         string `json:"sale_price"`
+	Currency          string `json:"currency"`
+	UnitPrice         string `json:"unit_price"`
+}
+
+type SkuInventory struct {
+	WarehouseId string `json:"warehouse_id"`
+	Quantity    int    `json:"quantity"`
+}
+
+type SkuIdentifierCode struct {
+	Code string `json:"code"`
+	Type string `json:"type"`
+}
+
+type CombinedSku struct {
+	ProductId string `json:"product_id"`
+	SkuId     string `json:"sku_id"`
+	SkuCount  int    `json:"sku_count"`
+}
+
+type ReplicateSource struct {
+	ProductId string `json:"product_id"`
+	ShopId    string `json:"shop_id"`
+	SkuId     string `json:"sku_id"`
+}
+
+type GlobalListingPolicy struct {
+	PriceSync       bool            `json:"price_sync"`
+	InventoryType   string          `json:"inventory_type"`
+	ReplicateSource ReplicateSource `json:"replicate_Source"`
+}
+
+type SalesAttribute struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	ValueId   string `json:"value_id"`
+	ValueName string `json:"value_name"`
+	SkuImg    Image  `json:"sku_img"`
+}
+
+type Sku struct {
+	Id                  string              `json:"id"`
+	SellerSku           string              `json:"seller_sku"`
+	Price               SkuPrice            `json:"price"`
+	Inventory           []SkuInventory      `json:"inventory"`
+	IdentifierCode      SkuIdentifierCode   `json:"identifier_code"`
+	SalesAttributes     []SalesAttribute    `json:"sales_attributes"`
+	ExternalSkuId       string              `json:"external_sku_id"`
+	CombinedSkus        []CombinedSku       `json:"combined_skus"`
+	GlobalListingPolicy GlobalListingPolicy `json:"global_listing_policy"`
+	SkuUnitCount        string              `json:"sku_unit_count"`
+}
+
+type Certification struct {
+	Id     string  `json:"id"`
+	Title  string  `json:"title"`
+	Files  []File  `json:"files"`
+	Images []Image `json:"images"`
+}
+
+type Template struct {
+	Id string `json:"id"`
+}
+
+type ProductSizeChart struct {
+	Image    Image    `json:"image"`
+	Template Template `json:"template"`
+}
+
+type Value struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type ProductAttribute struct {
+	Id     string  `json:"id"`
+	Name   string  `json:"name"`
+	Values []Value `json:"values"`
+}
+
+type AuditFailedReason struct {
+	Position    string   `json:"position"`
+	Reasons     []string `json:"reasons"`
+	Suggestions []string `json:"suggestions"`
+}
+
+type DeliveryOption struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	IsAvailable bool   `json:"is_available"`
+}
+
+type Manufacturer struct {
+	Name        string `json:"name"`
+	Address     string `json:"address"`
+	PhoneNumber string `json:"phone_number"`
+	Email       string `json:"email"`
+}
+
+type Product struct {
+	Id                 string              `json:"id"`
+	Status             string              `json:"status"`
+	Title              string              `json:"title"`
+	CategoryChains     []CategoryChain     `json:"category_chains"`
+	Brand              Brand               `json:"brand"`
+	MainImages         []Image             `json:"main_images"`
+	Video              Video               `json:"video"`
+	Description        string              `json:"description"`
+	PackageDimensions  PackageDimensions   `json:"package_dimensions"`
+	PackageWeight      PackageWeight       `json:"package_weight"`
+	Skus               []Sku               `json:"skus"`
+	Certifications     []Certification     `json:"certifications"`
+	SizeChart          ProductSizeChart    `json:"size_chart"`
+	IsCodAllowed       bool                `json:"is_cod_allowed"`
+	ProductAttributes  []ProductAttribute  `json:"product_attributes"`
+	AuditFailedReasons []AuditFailedReason `json:"audit_failed_reasons"`
+	UpdateTime         int                 `json:"update_time"`
+	CreateTime         int                 `json:"create_time"`
+	DeliveryOptions    []DeliveryOption    `json:"delivery_options"`
+	ExternalProductId  string              `json:"external_product_id"`
+	ProductTypes       []string            `json:"product_types"`
+	Manufacturer       Manufacturer        `json:"manufacturer"`
+	IsNotForSale       bool                `json:"is_not_for_sale"`
+}
