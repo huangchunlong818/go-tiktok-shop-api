@@ -130,7 +130,23 @@ type Products struct {
 	UpdateTime             int      `json:"update_time"`
 }
 
-// --------- 产品详情 ------------
+// PrerequisitesResultRsp 店铺的商品规则以及是否满足上架商品的条件
+type PrerequisitesResultRsp struct {
+	Code     int              `json:"code"`     //逻辑状态码
+	Message  string           `json:"message"`  //错误信息
+	Data     PrerequisitesRsp `json:"data"`     //数据
+	HttpCode int              `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type PrerequisitesRsp struct {
+	CheckResults []CheckResults `json:"check_results"`
+}
+
+type CheckResults struct {
+	CheckItem   string   `json:"check_item"`
+	FailReasons []string `json:"fail_reasons"`
+	IsFailed    bool     `json:"is_failed"`
+}
 
 // ProductResultRsp 产品详情响应
 type ProductResultRsp struct {
