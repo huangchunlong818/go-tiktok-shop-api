@@ -51,7 +51,7 @@ type CateResultRsp struct {
 
 // 分类响应
 type CateRsp struct {
-	Cate []Cate `json:"cate"`
+	Cate []Cate `json:"categories"`
 }
 
 type Cate struct {
