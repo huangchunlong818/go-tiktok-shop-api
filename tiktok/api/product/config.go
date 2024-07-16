@@ -10,11 +10,11 @@ type CateRuleResultRsp struct {
 
 // 分类规则相应  注释查看proto
 type CateRuleRsp struct {
-	Cod                   *Cod                    `json:"cod"`
-	Epr                   *Epr                    `json:"epr"`
-	PackageDimension      *PackageDimension       `json:"package_dimension"`
+	Cod                   Cod                     `json:"cod"`
+	Epr                   Epr                     `json:"epr"`
+	PackageDimension      PackageDimension        `json:"package_dimension"`
 	ProductCertifications []ProductCertifications `json:"product_certifications"`
-	SizeChart             *SizeChart              `json:"size_chart"`
+	SizeChart             SizeChart               `json:"size_chart"`
 }
 
 type Cod struct {
@@ -128,6 +128,33 @@ type Products struct {
 	Status                 string   `json:"status"`
 	Title                  string   `json:"title"`
 	UpdateTime             int      `json:"update_time"`
+}
+
+// CateAttrsResultRsp 分类属性
+type CateAttrsResultRsp struct {
+	Code     int          `json:"code"`     //逻辑状态码
+	Message  string       `json:"message"`  //错误信息
+	Data     CateAttrsRsp `json:"data"`     //数据
+	HttpCode int          `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type CateAttrsRsp struct {
+	CateAttrs []CateAttr `json:"attributes"`
+}
+
+type CateAttr struct {
+	Id                  string   `json:"id"`
+	IsCustomizable      bool     `json:"is_customizable"`
+	IsMultipleSelection bool     `json:"is_multiple_selection"`
+	IsRequired          bool     `json:"is_required"`
+	Name                string   `json:"name"`
+	Type                string   `json:"type"`
+	Values              []Values `json:"values"`
+}
+
+type Values struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
 }
 
 // PrerequisitesResultRsp 店铺的商品规则以及是否满足上架商品的条件

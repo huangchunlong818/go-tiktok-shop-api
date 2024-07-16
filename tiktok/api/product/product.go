@@ -23,8 +23,10 @@ type ProductApiClientInterface interface {
 	//分类
 	GetCateRule(ctx context.Context, token string, cateId string, query map[string]string) CateRuleResultRsp
 	GetCate(ctx context.Context, token string, query map[string]string) CateResultRsp
+	GetCateAttrs(ctx context.Context, token string, cateId string, query map[string]string) CateAttrsResultRsp
 	GetCateConfig(token string) common.GetApiConfig
 	GetCateRuleConfig(token string, cateId string) common.GetApiConfig
+	GetCateAttrsConfig(token string, cateId string) common.GetApiConfig
 
 	// 获取店铺的商品规则以及是否满足上架商品的条件
 	GetPrerequisites(ctx context.Context, token string, query map[string]string) PrerequisitesResultRsp
