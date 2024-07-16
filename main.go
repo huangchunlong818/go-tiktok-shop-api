@@ -43,6 +43,12 @@ func main() {
 	fmt.Println("产品相关API分类请求：", cate)
 	cateRule := productClient.GetCateRule(ctx, "tttt", "123", nil)
 	fmt.Println("产品相关API分类规则请求：", cateRule)
+	cateAttrsQuery := map[string]string{
+		"shop_cipher":       "xxxxx",
+		"category_version ": "",
+	}
+	cateAttrs := productClient.GetCateAttrs(ctx, "tttt", "123", cateAttrsQuery)
+	fmt.Println("产品相关API分类属性请求：", cateAttrs)
 
 	// 产品相关--发布商品校验规则
 	prerequisitesQuery := map[string]string{
