@@ -48,6 +48,7 @@ type SendParams struct {
 	Body    map[string]any    //请求体具体请求参数
 	Headers map[string]string //具体头部请求参数
 	Method  string            //请求方式 get post put delete
+	Files   map[string]string //文件上传
 }
 
 // 通用tiktok shop api 请求接口类型定义
@@ -69,7 +70,7 @@ type TiktokApiRsp struct {
 }
 
 // 通用tiktok shop api 请求   reqs 接口基本信息，带token    query URL参数(不带app_key，sign，timestamp)   body 请求体参数
-func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any) TiktokApiRsp {
+func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig, query map[string]string, body map[string]any, files map[string]string) TiktokApiRsp {
 	result := TiktokApiRsp{}
 	if reqs.Token == "" && reqs.FullApi == "" {
 		result.Code = ErrCode
@@ -98,6 +99,7 @@ func (c *TiktokShopCommon) SendTiktokApi(ctx context.Context, reqs GetApiConfig,
 		Query:   query,
 		Body:    body,
 		Headers: header,
+		Files:   files,
 	}
 
 	//请求接口
@@ -128,10 +130,18 @@ func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) Tikto
 	tmpResty := restyClient.R().
 		SetContext(ctx). //如果ctx.Done()通道关闭，则中断请求执行
 		SetQueryParams(params.Query).
-		SetBody(params.Body).
+		SetBody(params.Body)
+
+	// 文件上传
+	if len(params.Files) > 0 {
+		tmpResty = tmpResty.SetFiles(params.Files)
+	}
+
+	tmpResty = tmpResty.
 		SetHeaders(params.Headers).
 		SetResult(&res).
 		SetError(&errRsp)
+
 	switch params.Method {
 	case "post":
 		resp, err = tmpResty.Post(params.Api)

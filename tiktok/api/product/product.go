@@ -44,7 +44,7 @@ type ProductApiClientInterface interface {
 // 获取产品，搜索产品
 func (b *TiktokProduct) GetProducts(ctx context.Context, token string, query map[string]string, body map[string]any) ProductsResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetProductsConfig(token), query, body)
+	r := b.SendTiktokApi(ctx, b.GetProductsConfig(token), query, body, nil)
 	result := ProductsResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,
@@ -81,7 +81,7 @@ func (b *TiktokProduct) GetProductsConfig(token string) common.GetApiConfig { //
 // GetProduct 获取产品详情
 func (b *TiktokProduct) GetProduct(ctx context.Context, token string, productId string, query map[string]string) ProductResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetProductConfig(token, productId), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetProductConfig(token, productId), query, nil, nil)
 	result := ProductResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,

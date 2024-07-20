@@ -12,7 +12,7 @@ import (
 // 获取店铺品牌
 func (b *TiktokProduct) GetBrands(ctx context.Context, token string, query map[string]string) BrandsResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetBrandsConfig(token), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetBrandsConfig(token), query, nil, nil)
 	result := BrandsResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,
