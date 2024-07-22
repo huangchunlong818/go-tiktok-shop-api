@@ -39,6 +39,14 @@ type ProductApiClientInterface interface {
 	//产品详情
 	GetProduct(ctx context.Context, token string, productId string, query map[string]string) ProductResultRsp
 	GetProductConfig(token string, productId string) common.GetApiConfig
+
+	// 产品图片上传
+	ImageUpload(ctx context.Context, token string, body map[string]any, filePath string) ImageUploadResultRsp
+	GetImageUploadConfig(token string) common.GetApiConfig
+
+	// 产品附件上传
+	FileUpload(ctx context.Context, token string, body map[string]any, filePath string) FileUploadResultRsp
+	GetFileUploadConfig(token string) common.GetApiConfig
 }
 
 // 获取产品，搜索产品
