@@ -49,7 +49,7 @@ func (s *TiktokShop) GetAuthorizedShopsApi(token string) common.GetApiConfig { /
 // 获取所有授权店铺
 func (s *TiktokShop) GetAuthorizedShops(ctx context.Context, token string) ShopsRsp {
 	//请求接口
-	r := s.SendTiktokApi(ctx, s.GetAuthorizedShopsApi(token), nil, nil)
+	r := s.SendTiktokApi(ctx, s.GetAuthorizedShopsApi(token), nil, nil, nil)
 	result := ShopsRsp{
 		Code:     r.Code,
 		Message:  r.Message,

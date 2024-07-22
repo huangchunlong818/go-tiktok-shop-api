@@ -11,7 +11,7 @@ import (
 // 获取店铺分类规则
 func (b *TiktokProduct) GetCateRule(ctx context.Context, token string, cateId string, query map[string]string) CateRuleResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetCateRuleConfig(token, cateId), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetCateRuleConfig(token, cateId), query, nil, nil)
 	result := CateRuleResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,
@@ -35,7 +35,7 @@ func (b *TiktokProduct) GetCateRule(ctx context.Context, token string, cateId st
 // 获取店铺分类
 func (b *TiktokProduct) GetCate(ctx context.Context, token string, query map[string]string) CateResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetCateConfig(token), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetCateConfig(token), query, nil, nil)
 	result := CateResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,
@@ -59,7 +59,7 @@ func (b *TiktokProduct) GetCate(ctx context.Context, token string, query map[str
 // GetCateAttrs 分类属性
 func (b *TiktokProduct) GetCateAttrs(ctx context.Context, token string, cateId string, query map[string]string) CateAttrsResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetCateAttrsConfig(token, cateId), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetCateAttrsConfig(token, cateId), query, nil, nil)
 	result := CateAttrsResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,

@@ -50,7 +50,7 @@ func (a *TiktokShopAuth) ReloadToken(ctx context.Context, refreshToken string) G
 		"app_secret":    a.config.App.Secret,
 	}
 	//请求接口
-	r := a.SendTiktokApi(ctx, a.ReloadTokenUrl(), query, nil)
+	r := a.SendTiktokApi(ctx, a.ReloadTokenUrl(), query, nil, nil)
 	result = GetTokenByAuthCodeRsp{
 		Code:     r.Code,
 		Message:  r.Message,
@@ -86,7 +86,7 @@ func (a *TiktokShopAuth) GetTokenByAuthCode(ctx context.Context, authCode string
 		"app_secret": a.config.App.Secret,
 	}
 	//请求接口
-	r := a.SendTiktokApi(ctx, a.GetTokenByAuthCodeApi(), query, nil)
+	r := a.SendTiktokApi(ctx, a.GetTokenByAuthCodeApi(), query, nil, nil)
 	result = GetTokenByAuthCodeRsp{
 		Code:     r.Code,
 		Message:  r.Message,

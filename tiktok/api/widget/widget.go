@@ -36,7 +36,7 @@ func GetNewService(config *config.Config) WidgetApiClientInterface {
 // 获取所有授权店铺
 func (s *TiktokWidget) GetWidgetToken(ctx context.Context, token string) GetTokenRsp {
 	//请求接口
-	r := s.SendTiktokApi(ctx, s.GetWidgetTokenConfig(token), nil, nil)
+	r := s.SendTiktokApi(ctx, s.GetWidgetTokenConfig(token), nil, nil, nil)
 	result := GetTokenRsp{
 		Code:     r.Code,
 		Message:  r.Message,

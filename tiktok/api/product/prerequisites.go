@@ -10,7 +10,7 @@ import (
 // GetPrerequisites 获取店铺的商品规则以及是否满足上架商品的条件
 func (b *TiktokProduct) GetPrerequisites(ctx context.Context, token string, query map[string]string) PrerequisitesResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetPrerequisitesConfig(token), query, nil)
+	r := b.SendTiktokApi(ctx, b.GetPrerequisitesConfig(token), query, nil, nil)
 	result := PrerequisitesResultRsp{
 		Code:     r.Code,
 		Message:  r.Message,
