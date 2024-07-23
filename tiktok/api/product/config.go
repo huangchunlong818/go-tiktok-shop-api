@@ -405,3 +405,89 @@ type Product struct {
 	Manufacturer       Manufacturer        `json:"manufacturer"`
 	IsNotForSale       bool                `json:"is_not_for_sale"`
 }
+
+// Check Product Listing
+type DiagnosisResults struct {
+	Code       string `json:"code"`
+	HowToSolve string `json:"how_to_solve"`
+}
+
+type Images struct {
+	Height       int    `json:"height"`
+	OptimizedUri string `json:"optimized_uri"`
+	OptimizedUrl string `json:"optimized_url"`
+	Uri          string `json:"uri"`
+	Url          string `json:"url"`
+	Width        int    `json:"width"`
+}
+
+type SeoWords struct {
+	Text string `json:"text"`
+}
+
+type SmartTexts struct {
+	Text string `json:"text"`
+}
+
+type Suggestions struct {
+	Images     []Images     `json:"images"`
+	SeoWords   []SeoWords   `json:"seo_words"`
+	SmartTexts []SmartTexts `json:"smart_texts"`
+}
+
+type Diagnoses struct {
+	DiagnosisResults []DiagnosisResults `json:"diagnosis_results"`
+	Field            string             `json:"field"`
+	Suggestions      Suggestions        `json:"suggestions"`
+}
+
+type FailReasons struct {
+	Message string `json:"message"`
+}
+
+type Warnings struct {
+	Message string `json:"message"`
+}
+
+type CheckProductListingRsp struct {
+	CheckResult string        `json:"check_result"`
+	Diagnoses   []Diagnoses   `json:"diagnoses"`
+	FailReasons []FailReasons `json:"fail_reasons"`
+	Warnings    Warnings      `json:"warnings"`
+}
+
+type CheckProductListingResultRsp struct {
+	Code     int                    `json:"code"`     //逻辑状态码
+	Message  string                 `json:"message"`  //错误信息
+	Data     CheckProductListingRsp `json:"data"`     //数据
+	HttpCode int                    `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type SalesAttributes struct {
+	Id      string `json:"id"`
+	ValueId string `json:"value_id"`
+}
+
+type CreateProductSkus struct {
+	ExternalSkuId   string            `json:"external_sku_id"`
+	Id              string            `json:"id"`
+	SalesAttributes []SalesAttributes `json:"sales_attributes"`
+	SellerSku       string            `json:"seller_sku"`
+}
+
+type WarningMessages struct {
+	Message string `json:"message"`
+}
+
+type CreateProductRsp struct {
+	ProductId string              `json:"product_id"`
+	Skus      []CreateProductSkus `json:"skus"`
+	Warnings  []WarningMessages   `json:"warnings"`
+}
+
+type CreateProductResultRsp struct {
+	Code     int              `json:"code"`     //逻辑状态码
+	Message  string           `json:"message"`  //错误信息
+	Data     CreateProductRsp `json:"data"`     //数据
+	HttpCode int              `json:"httpCode"` //请求tiktok的HTTP状态码
+}
