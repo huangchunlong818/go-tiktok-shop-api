@@ -64,17 +64,10 @@ type Cate struct {
 
 // 文件上传结构
 type FileUploadResultRsp struct {
-	Code     int           `json:"code"`     //逻辑状态码
-	Message  string        `json:"message"`  //错误信息
-	Data     FileUploadRsp `json:"data"`     //数据
-	HttpCode int           `json:"httpCode"` //请求tiktok的HTTP状态码
-}
-
-type FileUploadRsp struct {
-	Code      int            `json:"code"`
-	Data      FileUploadData `json:"data"`
-	Message   string         `json:"message"`
-	RequestId string         `json:"request_id"`
+	Code     int            `json:"code"`     //逻辑状态码
+	Message  string         `json:"message"`  //错误信息
+	Data     FileUploadData `json:"data"`     //数据
+	HttpCode int            `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 type FileUploadData struct {
@@ -86,17 +79,10 @@ type FileUploadData struct {
 
 // 图片上传结构
 type ImageUploadResultRsp struct {
-	Code     int            `json:"code"`     //逻辑状态码
-	Message  string         `json:"message"`  //错误信息
-	Data     ImageUploadRsp `json:"data"`     //数据
-	HttpCode int            `json:"httpCode"` //请求tiktok的HTTP状态码
-}
-
-type ImageUploadRsp struct {
-	Code      int             `json:"code"`
-	Data      ImageUploadData `json:"data"`
-	Message   string          `json:"message"`
-	RequestId string          `json:"request_id"`
+	Code     int             `json:"code"`     //逻辑状态码
+	Message  string          `json:"message"`  //错误信息
+	Data     ImageUploadData `json:"data"`     //数据
+	HttpCode int             `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
 type ImageUploadData struct {
@@ -490,4 +476,16 @@ type CreateProductResultRsp struct {
 	Message  string           `json:"message"`  //错误信息
 	Data     CreateProductRsp `json:"data"`     //数据
 	HttpCode int              `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type PartialEditProductRsp struct {
+	ProductId string              `json:"product_id"`
+	Skus      []CreateProductSkus `json:"skus"`
+}
+
+type PartialEditProductResultRsp struct {
+	Code     int                   `json:"code"`     //逻辑状态码
+	Message  string                `json:"message"`  //错误信息
+	Data     PartialEditProductRsp `json:"data"`     //数据
+	HttpCode int                   `json:"httpCode"` //请求tiktok的HTTP状态码
 }
