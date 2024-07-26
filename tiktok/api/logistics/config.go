@@ -1,4 +1,4 @@
-package product
+package logistics
 
 type Address struct {
 	City          string `json:"city"`

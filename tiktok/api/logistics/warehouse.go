@@ -1,4 +1,4 @@
-package product
+package logistics
 
 import (
 	"context"

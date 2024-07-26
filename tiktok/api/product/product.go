@@ -44,6 +44,10 @@ type ProductApiClientInterface interface {
 	CreateProduct(ctx context.Context, token string, query map[string]string, body map[string]any) CreateProductResultRsp
 	CreateProductConfig(token string) common.GetApiConfig
 
+	// 修改部分产品信息
+	PartialEditProduct(ctx context.Context, token string, productId string, query map[string]string, body map[string]any) PartialEditProductResultRsp
+	PartialEditProductConfig(token string, productId string) common.GetApiConfig
+
 	// 产品图片上传
 	ImageUpload(ctx context.Context, token string, body map[string]any, filePath string) ImageUploadResultRsp
 	GetImageUploadConfig(token string) common.GetApiConfig
@@ -157,6 +161,42 @@ func (b *TiktokProduct) CreateProduct(ctx context.Context, token string, query m
 
 func (b *TiktokProduct) CreateProductConfig(token string) common.GetApiConfig { //请求方式
 	api := fmt.Sprintf("/product/%s/products", b.config.Version) //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",         //请求头content-type 类型
+		Method:      "post",                     //请求方法类型
+		Api:         api,                        //请求API PATH地址不带域名
+		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
+		Token:       token,
+	}
+}
+
+// PartialEditProduct 修改产品的部分信息
+func (b *TiktokProduct) PartialEditProduct(ctx context.Context, token string, productId string, query map[string]string, body map[string]any) PartialEditProductResultRsp {
+	//请求接口
+	r := b.SendTiktokApi(ctx, b.PartialEditProductConfig(token, productId), query, body, nil)
+	result := PartialEditProductResultRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !b.IsSuccess(r) {
+		return result
+	}
+
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
+	if err != nil {
+		r.Code = common.ErrCode
+		r.Message = "PartialEditProduct response error " + err.Error()
+		return result
+	}
+
+	return result
+}
+
+func (b *TiktokProduct) PartialEditProductConfig(token string, productId string) common.GetApiConfig { //请求方式
+	api := fmt.Sprintf("/product/%s/products/%s/partial_edit", b.config.Version, productId) //请求API PATH
 
 	return common.GetApiConfig{
 		ContentType: "application/json",         //请求头content-type 类型
