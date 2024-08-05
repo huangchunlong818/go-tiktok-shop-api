@@ -53,7 +53,7 @@ type ProductApiClientInterface interface {
 	GetImageUploadConfig(token string) common.GetApiConfig
 
 	// 产品附件上传
-	FileUpload(ctx context.Context, token string, body map[string]any, filePath string) FileUploadResultRsp
+	FileUpload(ctx context.Context, token string, query map[string]string, body map[string]any, filePath string) FileUploadResultRsp
 	GetFileUploadConfig(token string) common.GetApiConfig
 
 	// 检测产品发布字段
