@@ -10,9 +10,9 @@ import (
 //tiktok shop product file upload
 
 // FileUpload 文件上传（PDF）
-func (b *TiktokProduct) FileUpload(ctx context.Context, token string, body map[string]any, filePath string) FileUploadResultRsp {
+func (b *TiktokProduct) FileUpload(ctx context.Context, token string, query map[string]string, body map[string]any, filePath string) FileUploadResultRsp {
 	//请求接口
-	r := b.SendTiktokApi(ctx, b.GetFileUploadConfig(token), nil, body, map[string]string{
+	r := b.SendTiktokApi(ctx, b.GetFileUploadConfig(token), query, body, map[string]string{
 		"data": filePath,
 	})
 	result := FileUploadResultRsp{
