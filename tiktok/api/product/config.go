@@ -489,3 +489,24 @@ type PartialEditProductResultRsp struct {
 	Data     PartialEditProductRsp `json:"data"`     //数据
 	HttpCode int                   `json:"httpCode"` //请求tiktok的HTTP状态码
 }
+
+type DeleteProductsRsp struct {
+	Errors []Errors `json:"errors"`
+}
+
+type Detail struct {
+	ProductId string `json:"product_id"`
+}
+
+type Errors struct {
+	Code    int    `json:"code"`
+	Detail  Detail `json:"detail"`
+	Message string `json:"message"`
+}
+
+type DeleteProductsResultRsp struct {
+	Code     int               `json:"code"`     //逻辑状态码
+	Message  string            `json:"message"`  //错误信息
+	Data     DeleteProductsRsp `json:"data"`     //数据
+	HttpCode int               `json:"httpCode"` //请求tiktok的HTTP状态码
+}
