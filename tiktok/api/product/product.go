@@ -48,6 +48,14 @@ type ProductApiClientInterface interface {
 	DeleteProducts(ctx context.Context, token string, query map[string]string, body map[string]any) DeleteProductsResultRsp
 	DeleteProductsConfig(token string) common.GetApiConfig
 
+	// 产品下架
+	DeactivateProducts(ctx context.Context, token string, query map[string]string, body map[string]any) DeactivateProductsResultRsp
+	DeactivateProductsConfig(token string) common.GetApiConfig
+
+	// 产品上架
+	ActivateProducts(ctx context.Context, token string, query map[string]string, body map[string]any) ActivateProductsResultRsp
+	ActivateProductsConfig(token string) common.GetApiConfig
+
 	// 修改部分产品信息
 	PartialEditProduct(ctx context.Context, token string, productId string, query map[string]string, body map[string]any) PartialEditProductResultRsp
 	PartialEditProductConfig(token string, productId string) common.GetApiConfig
@@ -241,6 +249,78 @@ func (b *TiktokProduct) DeleteProductsConfig(token string) common.GetApiConfig {
 	return common.GetApiConfig{
 		ContentType: "application/json",         //请求头content-type 类型
 		Method:      "delete",                   //请求方法类型
+		Api:         api,                        //请求API PATH地址不带域名
+		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
+		Token:       token,
+	}
+}
+
+// DeactivateProducts 产品下架
+func (b *TiktokProduct) DeactivateProducts(ctx context.Context, token string, query map[string]string, body map[string]any) DeactivateProductsResultRsp {
+	//请求接口
+	r := b.SendTiktokApi(ctx, b.DeactivateProductsConfig(token), query, body, nil)
+	result := DeactivateProductsResultRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !b.IsSuccess(r) {
+		return result
+	}
+
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
+	if err != nil {
+		r.Code = common.ErrCode
+		r.Message = "DeactivateProducts response error " + err.Error()
+		return result
+	}
+
+	return result
+}
+
+func (b *TiktokProduct) DeactivateProductsConfig(token string) common.GetApiConfig { //请求方式
+	api := fmt.Sprintf("/product/%s/products/deactivate", b.config.Version) //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",         //请求头content-type 类型
+		Method:      "post",                     //请求方法类型
+		Api:         api,                        //请求API PATH地址不带域名
+		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
+		Token:       token,
+	}
+}
+
+// ActivateProducts 商品上架
+func (b *TiktokProduct) ActivateProducts(ctx context.Context, token string, query map[string]string, body map[string]any) ActivateProductsResultRsp {
+	//请求接口
+	r := b.SendTiktokApi(ctx, b.ActivateProductsConfig(token), query, body, nil)
+	result := ActivateProductsResultRsp{
+		Code:     r.Code,
+		Message:  r.Message,
+		HttpCode: r.HttpCode,
+	}
+	if !b.IsSuccess(r) {
+		return result
+	}
+
+	//解析数据
+	err := json.Unmarshal(r.Data, &result)
+	if err != nil {
+		r.Code = common.ErrCode
+		r.Message = "ActivateProducts response error " + err.Error()
+		return result
+	}
+
+	return result
+}
+
+func (b *TiktokProduct) ActivateProductsConfig(token string) common.GetApiConfig { //请求方式
+	api := fmt.Sprintf("/product/%s/products/activate", b.config.Version) //请求API PATH
+
+	return common.GetApiConfig{
+		ContentType: "application/json",         //请求头content-type 类型
+		Method:      "post",                     //请求方法类型
 		Api:         api,                        //请求API PATH地址不带域名
 		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
 		Token:       token,

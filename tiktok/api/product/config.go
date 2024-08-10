@@ -510,3 +510,41 @@ type DeleteProductsResultRsp struct {
 	Data     DeleteProductsRsp `json:"data"`     //数据
 	HttpCode int               `json:"httpCode"` //请求tiktok的HTTP状态码
 }
+
+type DeactivateProductsRsp struct {
+	Errors []Errors `json:"errors"`
+}
+
+type DeactivateProductsResultRsp struct {
+	Code     int                   `json:"code"`     //逻辑状态码
+	Message  string                `json:"message"`  //错误信息
+	Data     DeactivateProductsRsp `json:"data"`     //数据
+	HttpCode int                   `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type ActivateProductsRsp struct {
+	Errors []Errors `json:"errors"`
+}
+
+type ActivateProductsExtraErrors struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+type ActivateProductsDetail struct {
+	ExtraErrors []ActivateProductsExtraErrors `json:"extra_errors"`
+	ProductId   string                        `json:"product_id"`
+}
+
+type ActivateProductsErrors struct {
+	Code    int                    `json:"code"`
+	Detail  ActivateProductsDetail `json:"detail"`
+	Message string                 `json:"message"`
+}
+
+type ActivateProductsResultRsp struct {
+	Code     int                 `json:"code"`     //逻辑状态码
+	Message  string              `json:"message"`  //错误信息
+	Data     ActivateProductsRsp `json:"data"`     //数据
+	HttpCode int                 `json:"httpCode"` //请求tiktok的HTTP状态码
+}
