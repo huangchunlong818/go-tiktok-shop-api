@@ -177,7 +177,7 @@ type CateAttr struct {
 	Id                  string   `json:"id"`
 	IsCustomizable      bool     `json:"is_customizable"`
 	IsMultipleSelection bool     `json:"is_multiple_selection"`
-	IsRequired          bool     `json:"is_required"`
+	IsRequired          bool     `json:"is_requried"`
 	Name                string   `json:"name"`
 	Type                string   `json:"type"`
 	Values              []Values `json:"values"`
