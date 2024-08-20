@@ -174,13 +174,21 @@ type CateAttrsRsp struct {
 }
 
 type CateAttr struct {
-	Id                  string   `json:"id"`
-	IsCustomizable      bool     `json:"is_customizable"`
-	IsMultipleSelection bool     `json:"is_multiple_selection"`
-	IsRequired          bool     `json:"is_requried"`
-	Name                string   `json:"name"`
-	Type                string   `json:"type"`
-	Values              []Values `json:"values"`
+	Id                    string                 `json:"id"`
+	IsCustomizable        bool                   `json:"is_customizable"`
+	IsMultipleSelection   bool                   `json:"is_multiple_selection"`
+	IsRequired            bool                   `json:"is_requried"`
+	Name                  string                 `json:"name"`
+	Type                  string                 `json:"type"`
+	Values                []Values               `json:"values"`
+	RequirementConditions []RequirementCondition `json:"requirement_conditions"`
+	ValueDataFormat       string                 `json:"value_data_format"`
+}
+
+type RequirementCondition struct {
+	AttributeId      string `json:"attribute_id"`
+	AttributeValueId string `json:"attribute_value_id"`
+	ConditionType    string `json:"condition_type"`
 }
 
 type Values struct {
