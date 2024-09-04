@@ -38,7 +38,7 @@ func (b *TiktokProduct) GetOptimizedImagesConfig(token string) common.GetApiConf
 	api := fmt.Sprintf("/product/%s/images/optimize", b.config.OptimizedImagesVersion) //请求API PATH
 
 	return common.GetApiConfig{
-		ContentType: "multipart/form-data",      //请求头content-type 类型
+		ContentType: "application/json",         //请求头content-type 类型
 		Method:      "post",                     //请求方法类型
 		Api:         api,                        //请求API PATH地址不带域名
 		FullApi:     b.config.TkApiDomain + api, //请求的API 完整地址，带域名
