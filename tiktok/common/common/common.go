@@ -126,7 +126,15 @@ func (c *TiktokShopCommon) SendApi(ctx context.Context, params SendParams) Tikto
 
 	//请求tiktok
 	var err error
-	restyClient.SetTimeout(10 * time.Second)
+	timeout := 10 * time.Second
+
+	// 文件上传会比较耗时
+	if len(params.Files) > 0 {
+		timeout = 3 * time.Minute
+	}
+
+	restyClient.SetTimeout(timeout)
+
 	tmpResty := restyClient.R().
 		SetContext(ctx). //如果ctx.Done()通道关闭，则中断请求执行
 		SetQueryParams(params.Query).
