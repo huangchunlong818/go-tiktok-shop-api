@@ -64,6 +64,10 @@ type ProductApiClientInterface interface {
 	ImageUpload(ctx context.Context, token string, body map[string]any, filePath string) ImageUploadResultRsp
 	GetImageUploadConfig(token string) common.GetApiConfig
 
+	// 产品图片压缩
+	OptimizedImages(ctx context.Context, token string, query map[string]string, body map[string]any) OptimizedImagesResultRsp
+	GetOptimizedImagesConfig(token string) common.GetApiConfig
+
 	// 产品附件上传
 	FileUpload(ctx context.Context, token string, query map[string]string, body map[string]any, filePath string) FileUploadResultRsp
 	GetFileUploadConfig(token string) common.GetApiConfig

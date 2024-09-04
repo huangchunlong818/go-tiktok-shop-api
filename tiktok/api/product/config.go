@@ -62,6 +62,28 @@ type Cate struct {
 	PermissionStatuses []string `json:"permission_statuses"` //卖家对类别的权限 1.AVAILABLE：您拥有该类别的权限，可以在该类别下创建产品。2. INVITE_ONLY ：该类别是邀请类别，您不能选择类别创建产品。请放心客户经理或店铺支持团队以访问此类别或选择其他类别的权限。3、NON_MAIN_CATEGORY：该类目不在卖家店铺主类目范围内，卖家无权使用。建议商家联系AM进行处理
 }
 
+// 图片优化结构
+type OptimizedImagesResultRsp struct {
+	Code     int                 `json:"code"`     //逻辑状态码
+	Message  string              `json:"message"`  //错误信息
+	Data     OptimizedImagesData `json:"data"`     //数据
+	HttpCode int                 `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
+type OptimizedImagesData struct {
+	Images []Images `json:"images"`
+}
+
+type OptimizedImages struct {
+	Height         int    `json:"height"`
+	OptimizeStatus string `json:"optimize_status"`
+	OptimizedUri   string `json:"optimized_uri"`
+	OptimizedUrl   string `json:"optimized_url"`
+	OriginalUri    string `json:"original_uri"`
+	OriginalUrl    string `json:"original_url"`
+	Width          int    `json:"width"`
+}
+
 // 文件上传结构
 type FileUploadResultRsp struct {
 	Code     int            `json:"code"`     //逻辑状态码
