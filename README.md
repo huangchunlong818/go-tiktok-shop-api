@@ -7,7 +7,7 @@ go get github.com/huangchunlong818/go-tiktok-shop-api
 go get -u github.com/huangchunlong818/go-tiktok-shop-api
 
 指定版本
-go get -u github.com/huangchunlong818/go-tiktok-shop-api@v0.1.8
+go get -u github.com/huangchunlong818/go-tiktok-shop-api@v0.2.4
 
 开发的go版本 1.20.5
 
