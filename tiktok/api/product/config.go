@@ -520,6 +520,16 @@ type PartialEditProductResultRsp struct {
 	HttpCode int                   `json:"httpCode"` //请求tiktok的HTTP状态码
 }
 
+type UpdateProductPriceRsp struct {
+}
+
+type UpdateProductPriceResultRsp struct {
+	Code     int                   `json:"code"`     //逻辑状态码
+	Message  string                `json:"message"`  //错误信息
+	Data     UpdateProductPriceRsp `json:"data"`     //数据
+	HttpCode int                   `json:"httpCode"` //请求tiktok的HTTP状态码
+}
+
 type DeleteProductsRsp struct {
 	Errors []Errors `json:"errors"`
 }
