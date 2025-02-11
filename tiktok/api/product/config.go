@@ -30,10 +30,11 @@ type PackageDimension struct {
 }
 
 type ProductCertifications struct {
-	Id             string `json:"id"`
-	IsRequired     bool   `json:"is_required"`
-	Name           string `json:"name"`
-	SampleImageUrl string `json:"sample_image_url"`
+	Id                    string                 `json:"id"`
+	IsRequired            bool                   `json:"is_required"`
+	Name                  string                 `json:"name"`
+	SampleImageUrl        string                 `json:"sample_image_url"`
+	RequirementConditions []RequirementCondition `json:"requirement_conditions"`
 }
 
 type SizeChart struct {
