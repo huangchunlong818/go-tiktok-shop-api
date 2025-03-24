@@ -589,3 +589,23 @@ type ActivateProductsResultRsp struct {
 	Data     ActivateProductsRsp `json:"data"`     //数据
 	HttpCode int                 `json:"httpCode"` //请求tiktok的HTTP状态码
 }
+
+type RecommendCate struct {
+	Id                 string   `json:"id"`
+	Name               string   `json:"name"`
+	Level              int      `json:"level"`
+	IsLeaf             bool     `json:"is_leaf"`
+	PermissionStatuses []string `json:"permission_statuses"`
+}
+
+type RecommendCateRsp struct {
+	LeafCategoryId string          `json:"leaf_category_id"`
+	Categories     []RecommendCate `json:"categories"`
+}
+
+type RecommendCateResultRsp struct {
+	Code     int              `json:"code"`     //逻辑状态码
+	Message  string           `json:"message"`  //错误信息
+	Data     RecommendCateRsp `json:"data"`     //数据
+	HttpCode int              `json:"httpCode"` //请求tiktok的HTTP状态码
+}
