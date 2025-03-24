@@ -28,6 +28,10 @@ type ProductApiClientInterface interface {
 	GetCateRuleConfig(token string, cateId string) common.GetApiConfig
 	GetCateAttrsConfig(token string, cateId string) common.GetApiConfig
 
+	// 获取推荐分类
+	GetRecommendCateConfig(ctx context.Context, token string) common.GetApiConfig
+	GetRecommendCate(ctx context.Context, token string, query map[string]string, body map[string]any) RecommendCateResultRsp
+	
 	// 获取店铺的商品规则以及是否满足上架商品的条件
 	GetPrerequisites(ctx context.Context, token string, query map[string]string) PrerequisitesResultRsp
 	GetPrerequisitesConfig(token string) common.GetApiConfig
